@@ -1,8 +1,8 @@
-AddHandler fcgid-script .fcgi
-DirectoryIndex index.fcgi
+#AddHandler fcgid-script .fcgi
+#DirectoryIndex index.fcgi
 
 <IfModule mod_fcgid.c>
-   #AddHandler fcgid-script .fcgi
+   AddHandler fcgid-script .fcgi
    <Files ~ (\.fcgi)>
        SetHandler fcgid-script
        Options +FollowSymLinks +ExecCGI
@@ -12,9 +12,9 @@ DirectoryIndex index.fcgi
 <IfModule mod_rewrite.c>
    Options +FollowSymlinks
    RewriteEngine On
-   RewriteBase /
-   RewriteRule ^index\.fcgi$ - [L]
+   RewriteBase /api/v1/
+   #RewriteRule ^index\.fcgi$ - [L]
    RewriteCond %{REQUEST_FILENAME} !-f
-   RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ /index.fcgi/$1 [QSA,L]
+   #RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
 </IfModule>
