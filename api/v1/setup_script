@@ -1,0 +1,9 @@
+virtualenv api --python=python2.7
+source api/bin/activate
+pip install -U pip wheel setuptools
+pip install -Iv flup==1.0.3.dev-20110405
+pip install jsonify
+pip install Flask
+pip install peewee
+pip install PyMySQL
+pip install -U mock
