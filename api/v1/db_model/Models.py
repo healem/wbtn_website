@@ -21,14 +21,14 @@ class BaseModel(peewee.Model):
     class Meta:
         database = db
 
-class BlogEntry(WBTNDB):
+class BlogEntry(BaseModel):
     userId = peewee.ForeignKeyField(User)
-    title = peewee.TextField()
+    title = peewee.CharField()
     text = peewee.TextField()
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 
-class User(WBTNDB):
+class User(BaseModel):
     firstName = peewee.CharField()
     middleInitial = peewee.CharField()
     lastName = peewee.CharField()
@@ -37,6 +37,53 @@ class User(WBTNDB):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
     icon = peewee.BlobField()
+
+class UserRating(BaseModel):
+    whiskeyId = peewee.ForeignKeyField(Whiskey)
+    userId = peewee.ForeignKeyField(User)
+    rating = peewee.FloatField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
+    notes = peewee.TextField()
+
+class CalculatedScores(BaseModel):
+    whiskeyId = peewee.ForeignKeyField(Whiskey)
+    score = peewee.FloatField()
+    value = peewee.FloatField()
+    drinkability = peewee.FloatField()
+    complexity = peewee.FloatField()
+    mouthfeel = peewee.FloatField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
+
+class CollegeRating(BaseModel):
+    whiskeyId = peewee.ForeignKeyField(Whiskey)
+    userId = peewee.ForeignKeyField(User)
+    sweet = peewee.FloatField()
+    sour = peewee.FloatField()
+    heat = peewee.FloatField()
+    smooth = peewee.FloatField() 
+    finish = peewee.FloatField()
+    crisp = peewee.FloatField()
+    leather = peewee.FloatField()
+    wood = peewee.FloatField()
+    smoke = peewee.FloatField()
+    citrus = peewee.FloatField()
+    floral = peewee.FloatField()
+    fruit = peewee.FloatField()
+    notes = peewee.TextField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
+
+class Whiskey(BaseModel):
+    name = peewee.CharField()
+    price = peewee.FloatField()
+    proof = peewee.FloatField()
+    style = peewee.CharField()
+    age = peewee.IntegerField()
+    icon = peewee.BlobField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
 
 class Test(BaseModel):
     testName = peewee.CharField()
