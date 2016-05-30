@@ -37,6 +37,10 @@ class User(BaseModel):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
     icon = peewee.BlobField()
+    userRater = peewee.BooleanField()
+    blogWriter = peewee.BooleanField()
+    collegeRater = peewee.BooleanField()
+    whiskeyAdmin = peewee.BooleanField()
 
 class UserRating(BaseModel):
     whiskeyId = peewee.ForeignKeyField(Whiskey)
