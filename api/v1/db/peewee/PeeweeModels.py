@@ -10,23 +10,19 @@ config.read(configFile)
 userName = "healem_wbtn"
 readPw = config.get("db", userName)
 
-dbName = "healem_wbtn"
+dbName = "healem_wbtn_test"
 
 class WBTNDB(RetryOperationalError, peewee.MySQLDatabase):
     pass
 
-db = WBTNDB(None)
 class BaseModel(peewee.Model):
 
-    class Meta:
-        database = db
+    @classmethod
+    def getDbRef(cls):
+        return cls._meta.database
 
-class BlogEntry(BaseModel):
-    userId = peewee.ForeignKeyField(User)
-    title = peewee.CharField()
-    text = peewee.TextField()
-    createdTime = peewee.DateTimeField()
-    lastUpdatedTime = peewee.DateTimeField()
+    class Meta:
+        database = WBTNDB(None)
 
 class User(BaseModel):
     firstName = peewee.CharField()
@@ -41,6 +37,23 @@ class User(BaseModel):
     blogWriter = peewee.BooleanField()
     collegeRater = peewee.BooleanField()
     whiskeyAdmin = peewee.BooleanField()
+
+class Whiskey(BaseModel):
+    name = peewee.CharField()
+    price = peewee.FloatField()
+    proof = peewee.FloatField()
+    style = peewee.CharField()
+    age = peewee.IntegerField()
+    icon = peewee.BlobField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
+
+class BlogEntry(BaseModel):
+    userId = peewee.ForeignKeyField(User)
+    title = peewee.CharField()
+    text = peewee.TextField()
+    createdTime = peewee.DateTimeField()
+    lastUpdatedTime = peewee.DateTimeField()
 
 class UserRating(BaseModel):
     whiskeyId = peewee.ForeignKeyField(Whiskey)
@@ -79,25 +92,13 @@ class CollegeRating(BaseModel):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 
-class Whiskey(BaseModel):
-    name = peewee.CharField()
-    price = peewee.FloatField()
-    proof = peewee.FloatField()
-    style = peewee.CharField()
-    age = peewee.IntegerField()
-    icon = peewee.BlobField()
-    createdTime = peewee.DateTimeField()
-    lastUpdatedTime = peewee.DateTimeField()
-
-class Test(BaseModel):
-    testName = peewee.CharField()
-
 if __name__ == "__main__":
     try:
-        db.init(dbName, user=userName, passwd=readPw)
-        db.connect()
-        db.create_tables([Test])
+        db1 = BaseModel().getDbRef()
+        db1.init(dbName, user=userName, passwd=readPw)
+        db1.connect()
+        #db.create_tables([Test])
         #db.create_tables([Test], safe=True)
-        db.close()
+        db1.close()
     except peewee.OperationalError:
         print "Test table already exists!"
