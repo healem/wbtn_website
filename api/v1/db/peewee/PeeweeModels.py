@@ -55,16 +55,8 @@ class BlogEntry(BaseModel):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 
-class UserRating(BaseModel):
-    whiskeyId = peewee.ForeignKeyField(Whiskey)
-    userId = peewee.ForeignKeyField(User)
-    rating = peewee.FloatField()
-    createdTime = peewee.DateTimeField()
-    lastUpdatedTime = peewee.DateTimeField()
-    notes = peewee.TextField()
-
 class CalculatedScores(BaseModel):
-    whiskeyId = peewee.ForeignKeyField(Whiskey)
+    whiskeyId = peewee.ForeignKeyField(Whiskey, primary_key=True)
     score = peewee.FloatField()
     value = peewee.FloatField()
     drinkability = peewee.FloatField()
@@ -73,9 +65,10 @@ class CalculatedScores(BaseModel):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 
-class CollegeRating(BaseModel):
+class UserRating(BaseModel):
     whiskeyId = peewee.ForeignKeyField(Whiskey)
     userId = peewee.ForeignKeyField(User)
+    rating = peewee.FloatField()
     sweet = peewee.FloatField()
     sour = peewee.FloatField()
     heat = peewee.FloatField()
@@ -91,6 +84,9 @@ class CollegeRating(BaseModel):
     notes = peewee.TextField()
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
+
+    class Meta:
+        primary_key = CompositeKey('whiskeyId', 'userId')
 
 if __name__ == "__main__":
     try:
