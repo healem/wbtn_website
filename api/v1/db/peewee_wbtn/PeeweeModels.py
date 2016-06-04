@@ -86,7 +86,7 @@ class UserRating(BaseModel):
     lastUpdatedTime = peewee.DateTimeField()
 
     class Meta:
-        primary_key = CompositeKey('whiskeyId', 'userId')
+        primary_key = peewee.CompositeKey('whiskeyId', 'userId')
 
 if __name__ == "__main__":
     try:
