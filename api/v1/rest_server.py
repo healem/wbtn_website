@@ -1,5 +1,6 @@
 #!../bin/python
 import ConfigParser
+import db.datastore
 
 from flask import Flask, jsonify
 
