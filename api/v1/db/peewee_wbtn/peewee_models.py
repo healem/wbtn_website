@@ -29,7 +29,7 @@ class User(BaseModel):
     middleInitial = peewee.CharField()
     lastName = peewee.CharField()
     suffix = peewee.CharField()
-    email = peewee.CharField()
+    email = peewee.CharField(unique=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
     icon = peewee.BlobField()
@@ -72,7 +72,7 @@ class UserRating(BaseModel):
     sweet = peewee.FloatField()
     sour = peewee.FloatField()
     heat = peewee.FloatField()
-    smooth = peewee.FloatField() 
+    smooth = peewee.FloatField()
     finish = peewee.FloatField()
     crisp = peewee.FloatField()
     leather = peewee.FloatField()
@@ -93,8 +93,8 @@ if __name__ == "__main__":
         db1 = BaseModel().getDbRef()
         db1.init(dbName, user=userName, passwd=readPw)
         db1.connect()
-        #db.create_tables([Test])
-        #db.create_tables([Test], safe=True)
+        # db.create_tables([Test])
+        # db.create_tables([Test], safe=True)
         db1.close()
     except peewee.OperationalError:
         print "Test table already exists!"

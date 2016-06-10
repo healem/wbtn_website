@@ -2,9 +2,9 @@
 
 class User():
 
-    def __init__(self, userId, createdTime, userRater, blogWriter, collegeRater, whiskeyAdmin, firstName=None, middleInitial=None, lastName=None, suffix=None, email=None, lastUpdatedTime=None, icon=None):
-        self.userId = userId 
-        self.firstName = firstName 
+    def __init__(self, userId, email, createdTime, userRater, blogWriter, collegeRater, whiskeyAdmin, firstName=None, middleInitial=None, lastName=None, suffix=None, lastUpdatedTime=None, icon=None):
+        self.userId = userId
+        self.firstName = firstName
         self.middleInitial = middleInitial
         self.lastName = lastName
         self.suffix = suffix

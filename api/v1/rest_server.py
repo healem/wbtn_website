@@ -1,6 +1,7 @@
 #!../bin/python
 import ConfigParser
 import db.datastore
+import utils.loginit
 
 from flask import Flask, jsonify
 
@@ -30,5 +31,6 @@ def get_tasks():
     return jsonify({'tasks': tasks})
 
 if __name__ == '__main__':
+    loginit.initLogging()
     app.run(debug=True)
 
