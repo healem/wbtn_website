@@ -7,3 +7,5 @@ pip install Flask
 pip install peewee
 pip install PyMySQL
 pip install -U mock
+pip install freezegun
+pip install pycodestyle

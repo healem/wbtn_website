@@ -25,14 +25,14 @@ class BaseModel(peewee.Model):
         database = WBTNDB(None)
 
 class User(BaseModel):
-    firstName = peewee.CharField()
-    middleInitial = peewee.CharField()
-    lastName = peewee.CharField()
-    suffix = peewee.CharField()
+    firstName = peewee.CharField(null=True)
+    middleInitial = peewee.CharField(null=True)
+    lastName = peewee.CharField(null=True)
+    suffix = peewee.CharField(null=True)
     email = peewee.CharField(unique=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
-    icon = peewee.BlobField()
+    icon = peewee.BlobField(null=True)
     userRater = peewee.BooleanField()
     blogWriter = peewee.BooleanField()
     collegeRater = peewee.BooleanField()
@@ -40,11 +40,11 @@ class User(BaseModel):
 
 class Whiskey(BaseModel):
     name = peewee.CharField()
-    price = peewee.FloatField()
-    proof = peewee.FloatField()
-    style = peewee.CharField()
-    age = peewee.IntegerField()
-    icon = peewee.BlobField()
+    price = peewee.FloatField(null=True)
+    proof = peewee.FloatField(null=True)
+    style = peewee.CharField(null=True)
+    age = peewee.IntegerField(null=True)
+    icon = peewee.BlobField(null=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 

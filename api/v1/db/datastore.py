@@ -2,7 +2,9 @@
 
 import models
 import logging
+import datetime
 from peewee_wbtn import peewee_models
+from peewee import IntegrityError
 import ConfigParser
 
 class DbManager():
@@ -39,6 +41,19 @@ class DbManager():
         self.db.connect()
         self.db.create_tables(self.wbtnTables, safe=True)
         self.db.close
+
+    # This method should only be used during testing
+    '''Test accessor for raw db access'''
+    def getDbInstance(self):
+        return self.db
+
+    #############################################
+    ##
+    ##
+    ##  Methods on user table
+    ##
+    ##
+    #############################################
 
     def addUser(self, email, userRater=False, blogWriter=False, collegeRater=False, whiskeyAdmin=False, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a new user to the database.  Must provide unique email address'''
@@ -84,12 +99,44 @@ class DbManager():
     def getUserByEmail(self, email):
         '''Lookup a user by email address'''
         self.db.connect()
-        user = peewee_models.User.select().where(User.email=email)
-        wbtnUser = models.User(userId=user.id, email=user.email, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, user.createdTime, user.lastUpdatedTime)
+        user = peewee_models.User.get(peewee_models.User.email == email)
+        wbtnUser = models.User(userId=user.id, email=user.email, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
         self.db.close
         return wbtnUser
 
+    def getUserById(self, userId):
+        '''Lookup a user by userId'''
+        self.db.connect()
+        user = peewee_models.User.get(peewee_models.User.id == userId)
+        wbtnUser = models.User(userId=user.id, email=user.email, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        self.db.close
+        return wbtnUser
+
+    def deleteUserByEmail(self, email):
+        '''Delete a user by email address'''
+        self.db.connect()
+        self.logger.info("Deleteing user %s", email)
+        query = peewee_models.User.delete().where(peewee_models.User.email == email)
+        query.execute()
+        self.db.close
+
+    def deleteUserById(self, userId):
+        '''Delete a user by userId'''
+        self.db.connect()
+        self.logger.info("Deleteing user %s", userId)
+        query = peewee_models.User.delete().where(peewee_models.User.id == userId)
+        query.execute()
+        self.db.close
+
+    def clearUserTable(self):
+        self.db.connect()
+        self.logger.info("Clearing user table")
+        peewee_models.User.drop_table(True)
+        self.db.create_tables([peewee_models.User], safe=True)
+        self.db.close
+
+
 if __name__ == "__main__":
     from utils import loginit
-    loginit.initLogging()
+    loginit.initTestLogging()
     dbm = DbManager(testMode=True)
