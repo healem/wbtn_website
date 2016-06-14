@@ -45,7 +45,7 @@ class DbManager():
     #############################################
     ##
     ##
-    ##  Methods on user table
+    ##  Methods for user table
     ##
     ##
     #############################################
@@ -128,5 +128,73 @@ class DbManager():
         self.logger.info("Clearing user table")
         peewee_models.User.drop_table(True)
         self.db.create_tables([peewee_models.User], safe=True)
+        self.db.close
+        
+    #############################################
+    ##
+    ##
+    ##  Methods for Whiskey table
+    ##
+    ##
+    #############################################
+
+    def addWhiskey(self, name, price=None, proof=None, style=None, age=None, icon=None, lastUpdatedTime=None):
+        '''Add a new whiskey to the database.  Must provide unique name'''
+        try:
+            self.db.connect()
+            with self.db.transaction():
+                peewee_models.Whiskey.create(
+                    name=name,
+                    price=price,
+                    proof=proof,
+                    style=style,
+                    age=age,
+                    icon=icon,
+                    createdTime=datetime.datetime.now(),
+                    lastUpdatedTime=datetime.datetime.now())
+            self.db.close
+
+        except IntegrityError:
+            self.logger.error("Failed to add whiskey %s, name already taken", name)
+            self.db.close
+            raise
+        
+    def getWhiskeyByName(self, name):
+        '''Lookup a whiskey by name'''
+        self.db.connect()
+        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
+        wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        self.db.close
+        return wbtnWhiskey
+
+    def getWhiskeyById(self, whiskeyId):
+        '''Lookup whiskey by ID'''
+        self.db.connect()
+        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.id == whiskeyId)
+        wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        self.db.close
+        return wbtnWhiskey
+
+    def deleteWhiskeyByName(self, name):
+        '''Delete a whiskey by name'''
+        self.db.connect()
+        self.logger.info("Deleteing whiskey %s", name)
+        query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.name == name)
+        query.execute()
+        self.db.close
+
+    def deleteWhiskeyById(self, whiskeyId):
+        '''Delete a whiskey by whiskeyId'''
+        self.db.connect()
+        self.logger.info("Deleteing whiskey %s", whiskeyId)
+        query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.id == whiskeyId)
+        query.execute()
+        self.db.close
+
+    def clearWhiskeyTable(self):
+        self.db.connect()
+        self.logger.info("Clearing whiskey table")
+        peewee_models.Whiskey.drop_table(True)
+        self.db.create_tables([peewee_models.Whiskey], safe=True)
         self.db.close
 

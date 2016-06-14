@@ -16,10 +16,12 @@ class DBTest(unittest.TestCase):
         loginit.initTestLogging()
         DBTest.dbm = datastore.DbManager(testMode=True)
         DBTest.dbm.clearUserTable()
+        DBTest.dbm.clearWhiskeyTable()
 
     @classmethod
     def tearDownClass(cls):
         DBTest.dbm.clearUserTable()
+        DBTest.dbm.clearWhiskeyTable()
 
     def test_init(self):
         for table in self.dbm.wbtnTables:
@@ -38,7 +40,7 @@ class DBTest(unittest.TestCase):
         te1 = "testdsjkhg@jhglsg.asfg.edu"
 
         '''Basic case'''
-        self.dbm.addNormalUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+        self.dbm.addNormalUser(email=testEmail)
         eu = self.dbm.getUserByEmail(testEmail)
         self.assertEqual(eu.email, testEmail)
         self.assertTrue(eu.userRater)
@@ -75,7 +77,7 @@ class DBTest(unittest.TestCase):
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
-            self.dbm.addNormalUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+            self.dbm.addNormalUser(email=testEmail)
 
         '''User does not exist'''
         with self.assertRaises(DoesNotExist):
@@ -104,7 +106,7 @@ class DBTest(unittest.TestCase):
         te1 = "bwtestdsjkhg@jhglsg.asfg.edu"
 
         '''Basic case'''
-        self.dbm.addBlogWriterUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+        self.dbm.addBlogWriterUser(email=testEmail)
         eu = self.dbm.getUserByEmail(testEmail)
         self.assertEqual(eu.email, testEmail)
         self.assertTrue(eu.userRater)
@@ -137,7 +139,7 @@ class DBTest(unittest.TestCase):
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
-            self.dbm.addBlogWriterUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+            self.dbm.addBlogWriterUser(email=testEmail)
 
     def test_addCollegeRaterUser(self):
         testEmail = "crtest@dmjkg.com"
@@ -152,7 +154,7 @@ class DBTest(unittest.TestCase):
         te1 = "crtestdsjkhg@jhglsg.asfg.edu"
 
         '''Basic case'''
-        self.dbm.addCollegeRaterUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+        self.dbm.addCollegeRaterUser(email=testEmail)
         eu = self.dbm.getUserByEmail(testEmail)
         self.assertEqual(eu.email, testEmail)
         self.assertTrue(eu.userRater)
@@ -185,7 +187,7 @@ class DBTest(unittest.TestCase):
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
-            self.dbm.addCollegeRaterUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+            self.dbm.addCollegeRaterUser(email=testEmail)
 
     def test_addWhiskeyAdminUser(self):
         testEmail = "watest@dmjkg.com"
@@ -200,7 +202,7 @@ class DBTest(unittest.TestCase):
         te1 = "watestdsjkhg@jhglsg.asfg.edu"
 
         '''Basic case'''
-        self.dbm.addWhiskeyAdminUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+        self.dbm.addWhiskeyAdminUser(email=testEmail)
         eu = self.dbm.getUserByEmail(testEmail)
         self.assertEqual(eu.email, testEmail)
         self.assertTrue(eu.userRater)
@@ -233,7 +235,65 @@ class DBTest(unittest.TestCase):
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
-            self.dbm.addWhiskeyAdminUser(email=testEmail, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None)
+            self.dbm.addWhiskeyAdminUser(email=testEmail)
+            
+    def test_addWhiskey(self):
+        tname1 = "Test Whiskey 1"
+        tname2 = "Test Whiskey 2"
+        tprice = 35.00
+        tproof = 80
+        tage = 18
+        ticon = bytearray("waashdkgfualesbsbvlansufbalsug")
+        tstyle = "Bourbon"
+        freezer = freeze_time("2012-01-14 12:00:01")
+        freezer.start()
+        
+        '''Basic case'''
+        self.dbm.addWhiskey(name=tname1)
+        w = self.dbm.getWhiskeyByName(tname1)
+        self.assertEqual(w.name, tname1)
+        self.assertIsNone(w.price)
+        self.assertIsNone(w.proof)
+        self.assertIsNone(w.age)
+        self.assertIsNone(w.icon)
+        self.assertIsNone(w.style)
+        self.assertEqual(w.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(w.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''Normal case'''
+        self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        w1 = self.dbm.getWhiskeyByName(tname2)
+        self.assertEqual(w1.name, tname2)
+        self.assertEqual(w1.price, tprice)
+        self.assertEqual(w1.proof, tproof)
+        self.assertEqual(w1.age, tage)
+        self.assertEqual(w1.icon, ticon)
+        self.assertEqual(w1.style, tstyle)
+        self.assertEqual(w1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(w1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''Whiskey name taken'''
+        with self.assertRaises(IntegrityError):
+            self.dbm.addWhiskey(name=tname1)
+            
+        '''Get whiskey by id'''
+        w2 = self.dbm.getWhiskeyById(w1.whiskeyId)
+        self.assertEqual(w1.name, w2.name)
+        
+        '''Whiskey does not exist'''
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getWhiskeyByName(name="doesnotexist")
+
+        '''Delete Whiskey by name'''
+        self.dbm.deleteWhiskeyByName(tname2)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getWhiskeyByName(name=tname2)
+
+        '''Delete Whiskey by ID'''
+        self.dbm.deleteWhiskeyById(w1.whiskeyId)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getWhiskeyById(w1.whiskeyId)
+        
     
 
 # Necessary to be able to run the unit test

@@ -39,7 +39,7 @@ class User(BaseModel):
     whiskeyAdmin = peewee.BooleanField()
 
 class Whiskey(BaseModel):
-    name = peewee.CharField()
+    name = peewee.CharField(unique=True)
     price = peewee.FloatField(null=True)
     proof = peewee.FloatField(null=True)
     style = peewee.CharField(null=True)
@@ -50,7 +50,7 @@ class Whiskey(BaseModel):
 
 class BlogEntry(BaseModel):
     userId = peewee.ForeignKeyField(User)
-    title = peewee.CharField()
+    title = peewee.CharField(unique=True)
     text = peewee.TextField()
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
