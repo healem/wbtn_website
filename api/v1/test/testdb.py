@@ -17,11 +17,13 @@ class DBTest(unittest.TestCase):
         DBTest.dbm = datastore.DbManager(testMode=True)
         DBTest.dbm.clearUserTable()
         DBTest.dbm.clearWhiskeyTable()
+        DBTest.dbm.clearBlogEntryTable()
 
     @classmethod
     def tearDownClass(cls):
         DBTest.dbm.clearUserTable()
         DBTest.dbm.clearWhiskeyTable()
+        DBTest.dbm.clearBlogEntryTable()
 
     def test_init(self):
         for table in self.dbm.wbtnTables:
@@ -293,6 +295,48 @@ class DBTest(unittest.TestCase):
         self.dbm.deleteWhiskeyById(w1.whiskeyId)
         with self.assertRaises(DoesNotExist):
             self.dbm.getWhiskeyById(w1.whiskeyId)
+            
+    def test_addBlogEntry(self):
+        tt1 = "Title 1"
+        tt2 = "Title 2"
+        ttext = "alsighiua alrhgl uasryt8 ag4rtl7awg tugabwrf7b 8w4b47abv a8ui lrbfausl fgaebrfgwtgf agerg"
+        tuserId = 1
+        freezer = freeze_time("2012-01-14 12:00:01")
+        freezer.start()
+        
+        '''Normal case'''
+        self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tuserId)
+        b = self.dbm.getBlogEntryByTitle(tt1)
+        self.assertEqual(b.title, tt1)
+        self.assertEqual(b.text, ttext)
+        self.assertEqual(b.userId, tuserId)
+        self.assertEqual(b.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(b.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''Blog entry title taken taken'''
+        with self.assertRaises(IntegrityError):
+            self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tuserId)
+            
+        '''Get Blog Entry by id'''
+        b1 = self.dbm.getBlogEntryById(b.blogEntryId)
+        self.assertEqual(b.title, b1.title)
+        
+        '''Blog entry does not exist'''
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getBlogEntryByTitle(title="doesnotexist")
+
+        '''Delete blog entry by title'''
+        self.dbm.addBlogEntry(title=tt2, text=ttext, userId=tuserId)
+        b2 = self.dbm.getBlogEntryByTitle(tt2)
+        self.assertEqual(b2.title, tt2)
+        self.dbm.deleteBlogEntryByTitle(tt2)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getBlogEntryByTitle(title=tt2)
+
+        '''Delete blog entry by ID'''
+        self.dbm.deleteBlogEntryById(b1.blogEntryId)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getBlogEntryById(b1.blogEntryId)
         
     
 

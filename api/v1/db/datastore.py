@@ -138,7 +138,7 @@ class DbManager():
     ##
     #############################################
 
-    def addWhiskey(self, name, price=None, proof=None, style=None, age=None, icon=None, lastUpdatedTime=None):
+    def addWhiskey(self, name, price=None, proof=None, style=None, age=None, icon=None):
         '''Add a new whiskey to the database.  Must provide unique name'''
         try:
             self.db.connect()
@@ -196,5 +196,70 @@ class DbManager():
         self.logger.info("Clearing whiskey table")
         peewee_models.Whiskey.drop_table(True)
         self.db.create_tables([peewee_models.Whiskey], safe=True)
+        self.db.close
+        
+    #############################################
+    ##
+    ##
+    ##  Methods for BlogEntry table
+    ##
+    ##
+    #############################################
+
+    def addBlogEntry(self, userId, title, text):
+        '''Add a new blog entry to the database.  Must provide unique title'''
+        try:
+            self.db.connect()
+            with self.db.transaction():
+                peewee_models.BlogEntry.create(
+                    userId=userId,
+                    title=title,
+                    text=text,
+                    createdTime=datetime.datetime.now(),
+                    lastUpdatedTime=datetime.datetime.now())
+            self.db.close
+
+        except IntegrityError:
+            self.logger.error("Failed to add blog entry %s, title already taken", title)
+            self.db.close
+            raise
+        
+    def getBlogEntryByTitle(self, title):
+        '''Lookup a blog entry by title'''
+        self.db.connect()
+        blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.title == title)
+        wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        self.db.close
+        return wbtnBlog
+
+    def getBlogEntryById(self, blogEntryId):
+        '''Lookup a blog entry by ID'''
+        self.db.connect()
+        blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.id == blogEntryId)
+        wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        self.db.close
+        return wbtnBlog
+
+    def deleteBlogEntryByTitle(self, title):
+        '''Delete a blog entry by title'''
+        self.db.connect()
+        self.logger.info("Deleteing blog entry %s", title)
+        query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.title == title)
+        query.execute()
+        self.db.close
+
+    def deleteBlogEntryById(self, blogEntryId):
+        '''Delete a blog entry by blogEntryId'''
+        self.db.connect()
+        self.logger.info("Deleteing blog entry %s", blogEntryId)
+        query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.id == blogEntryId)
+        query.execute()
+        self.db.close
+
+    def clearBlogEntryTable(self):
+        self.db.connect()
+        self.logger.info("Clearing blog entry table")
+        peewee_models.BlogEntry.drop_table(True)
+        self.db.create_tables([peewee_models.BlogEntry], safe=True)
         self.db.close
 
