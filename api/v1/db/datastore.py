@@ -42,11 +42,6 @@ class DbManager():
         self.db.create_tables(self.wbtnTables, safe=True)
         self.db.close
 
-    # This method should only be used during testing
-    '''Test accessor for raw db access'''
-    def getDbInstance(self):
-        return self.db
-
     #############################################
     ##
     ##
@@ -135,8 +130,3 @@ class DbManager():
         self.db.create_tables([peewee_models.User], safe=True)
         self.db.close
 
-
-if __name__ == "__main__":
-    from utils import loginit
-    loginit.initTestLogging()
-    dbm = DbManager(testMode=True)
