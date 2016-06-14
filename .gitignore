@@ -2,3 +2,5 @@ api/bin
 api/include
 api/lib
 *.pyc
+.coverage
+*.swp
