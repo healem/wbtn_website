@@ -62,7 +62,7 @@ class UserRating():
         self.floral = floral
         self.fruit = fruit
 
-class CalculatedScores():
+class CalculatedScore():
 
     def __init__(self, whiskeyId, score, value, drinkability, complexity, mouthfeel, createdTime, lastUpdatedTime=None):
         self.whiskeyId = whiskeyId

@@ -8,7 +8,7 @@ from peewee import IntegrityError
 import ConfigParser
 
 class DbManager():
-    wbtnTables = [peewee_models.User, peewee_models.Whiskey, peewee_models.BlogEntry, peewee_models.CalculatedScores, peewee_models.UserRating]
+    wbtnTables = [peewee_models.User, peewee_models.Whiskey, peewee_models.BlogEntry, peewee_models.CalculatedScore, peewee_models.UserRating]
     configFile = "/home4/healem/keys/wbtn.cnf"
     dbUser = "healem_wbtn"
 
@@ -263,3 +263,63 @@ class DbManager():
         self.db.create_tables([peewee_models.BlogEntry], safe=True)
         self.db.close
 
+    #############################################
+    ##
+    ##
+    ##  Methods for CalculatedScore table
+    ##
+    ##
+    #############################################
+
+    def addCalculatedScore(self, whiskeyId, score, value, drinkability, complexity, mouthfeel):
+        '''Add a new calculated score to the database.  This table is bound to the whiskeyId'''
+        try:
+            self.db.connect()
+            with self.db.transaction():
+                peewee_models.CalculatedScore.create(
+                    whiskeyId=whiskeyId,
+                    score=score,
+                    value=value,
+                    drinkability=drinkability,
+                    complexity=complexity,
+                    mouthfeel=mouthfeel,
+                    createdTime=datetime.datetime.now(),
+                    lastUpdatedTime=datetime.datetime.now())
+            self.db.close
+
+        except IntegrityError:
+            self.logger.error("Failed to add calculated score %s, score for this whiskeyId is already present", whiskeyId)
+            self.db.close
+            raise
+        
+    def getCalculatedScoreByWhiskeyId(self, whiskeyId):
+        '''Lookup a calculated score by whiskeyId'''
+        self.db.connect()
+        score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
+        wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        self.db.close
+        return wbtnScore
+
+    def getCalculatedScoreByWhiskeyName(self, name):
+        '''Lookup a calculated score by whiskey name'''
+        self.db.connect()
+        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
+        score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskey.id)
+        wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        self.db.close
+        return wbtnScore
+
+    def deleteCalculatedScoreByWhiskeyId(self, whiskeyId):
+        '''Delete a calculated score by whiskeyId'''
+        self.db.connect()
+        self.logger.info("Deleteing calculated score for whiskey %s", whiskeyId)
+        query = peewee_models.CalculatedScore.delete().where(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
+        query.execute()
+        self.db.close
+
+    def clearCalculatedScoreTable(self):
+        self.db.connect()
+        self.logger.info("Clearing calculated score table")
+        peewee_models.CalculatedScore.drop_table(True)
+        self.db.create_tables([peewee_models.CalculatedScore], safe=True)
+        self.db.close

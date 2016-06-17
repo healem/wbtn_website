@@ -18,12 +18,14 @@ class DBTest(unittest.TestCase):
         DBTest.dbm.clearUserTable()
         DBTest.dbm.clearWhiskeyTable()
         DBTest.dbm.clearBlogEntryTable()
+        DBTest.dbm.clearCalculatedScoreTable()
 
     @classmethod
     def tearDownClass(cls):
         DBTest.dbm.clearUserTable()
         DBTest.dbm.clearWhiskeyTable()
         DBTest.dbm.clearBlogEntryTable()
+        DBTest.dbm.clearCalculatedScoreTable()
 
     def test_init(self):
         for table in self.dbm.wbtnTables:
@@ -337,7 +339,63 @@ class DBTest(unittest.TestCase):
         self.dbm.deleteBlogEntryById(b1.blogEntryId)
         with self.assertRaises(DoesNotExist):
             self.dbm.getBlogEntryById(b1.blogEntryId)
+            
+    def test_addCalculatedScore(self):
+        tname1 = "Test Whiskey 1"
+        tname2 = "Test Whiskey 2"
+        tprice = 35.00
+        tproof = 80
+        tage = 18
+        ticon = bytearray("waashdkgfualesbsbvlansufbalsug")
+        tstyle = "Bourbon"
         
+        score = 3.75
+        value = 2.50
+        drink = 4.25
+        comp = 4.32
+        mf = 4.13
+        freezer = freeze_time("2012-01-14 12:00:01")
+        freezer.start()
+        
+        '''Create test whiskies'''
+        self.dbm.addWhiskey(name=tname1, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        w1 = self.dbm.getWhiskeyByName(tname1)
+        w2 = self.dbm.getWhiskeyByName(tname2)
+        
+        '''Normal case'''
+        self.dbm.addCalculatedScore(whiskeyId=w1.whiskeyId, score=score, value=value, drinkability=drink, complexity=comp, mouthfeel=mf)
+        self.dbm.addCalculatedScore(whiskeyId=w2.whiskeyId, score=score, value=value, drinkability=drink, complexity=comp, mouthfeel=mf)
+        s = self.dbm.getCalculatedScoreByWhiskeyId(w1.whiskeyId)
+        self.assertEqual(s.score, score)
+        self.assertEqual(s.value, value)
+        self.assertEqual(s.drinkability, drink)
+        self.assertEqual(s.complexity, comp)
+        self.assertEqual(s.mouthfeel, mf)
+        self.assertEqual(s.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(s.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''Calculated score already exists for whiskey'''
+        with self.assertRaises(IntegrityError):
+            self.dbm.addCalculatedScore(whiskeyId=w1.whiskeyId, score=score, value=value, drinkability=drink, complexity=comp, mouthfeel=mf)
+            
+        '''Get CalculatedScore by Whiskey name'''
+        s1 = self.dbm.getCalculatedScoreByWhiskeyName(w1.name)
+        self.assertEqual(s1.whiskeyId, w1.whiskeyId)
+        self.assertEqual(s1.score, score)
+        
+        '''Calculated score does not exist, by whiskeyId'''
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=999)
+            
+        '''Calculated score does not exist, by whiskey name'''
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getCalculatedScoreWhiskeyName(name="doesnotexist")
+
+        '''Delete calculate score by whiskeyId'''
+        self.dbm.deleteCalculatedScoreByWhiskeyId(w1.whiskeyId)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=w1.whiskeyId)
     
 
 # Necessary to be able to run the unit test

@@ -47,6 +47,8 @@ class Whiskey(BaseModel):
     icon = peewee.BlobField(null=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
+    
+    # TODO: add index of id and name
 
 class BlogEntry(BaseModel):
     userId = peewee.ForeignKeyField(User)
@@ -55,8 +57,8 @@ class BlogEntry(BaseModel):
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
 
-class CalculatedScores(BaseModel):
-    whiskeyId = peewee.ForeignKeyField(Whiskey, primary_key=True)
+class CalculatedScore(BaseModel):
+    whiskeyId = peewee.ForeignKeyField(Whiskey, unique=True, primary_key=True)
     score = peewee.FloatField()
     value = peewee.FloatField()
     drinkability = peewee.FloatField()
