@@ -341,8 +341,8 @@ class DBTest(unittest.TestCase):
             self.dbm.getBlogEntryById(b1.blogEntryId)
             
     def test_addCalculatedScore(self):
-        tname1 = "Test Whiskey 1"
-        tname2 = "Test Whiskey 2"
+        tname1 = "Test Whiskey 11"
+        tname2 = "Test Whiskey 12"
         tprice = 35.00
         tproof = 80
         tage = 18
@@ -381,7 +381,7 @@ class DBTest(unittest.TestCase):
             
         '''Get CalculatedScore by Whiskey name'''
         s1 = self.dbm.getCalculatedScoreByWhiskeyName(w1.name)
-        self.assertEqual(s1.whiskeyId, w1.whiskeyId)
+        self.assertEqual(s1.whiskeyId.id, w1.whiskeyId)
         self.assertEqual(s1.score, score)
         
         '''Calculated score does not exist, by whiskeyId'''
@@ -390,7 +390,7 @@ class DBTest(unittest.TestCase):
             
         '''Calculated score does not exist, by whiskey name'''
         with self.assertRaises(DoesNotExist):
-            self.dbm.getCalculatedScoreWhiskeyName(name="doesnotexist")
+            self.dbm.getCalculatedScoreByWhiskeyName(name="doesnotexist")
 
         '''Delete calculate score by whiskeyId'''
         self.dbm.deleteCalculatedScoreByWhiskeyId(w1.whiskeyId)
