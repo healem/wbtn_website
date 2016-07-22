@@ -323,3 +323,65 @@ class DbManager():
         peewee_models.CalculatedScore.drop_table(True)
         self.db.create_tables([peewee_models.CalculatedScore], safe=True)
         self.db.close
+        
+    #############################################
+    ##
+    ##
+    ##  Methods for UserRating table
+    ##
+    ##
+    #############################################
+
+    def addUserRating(self, whiskeyId, userId, rating, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
+        '''Add a new user rating to the database.  This table is bound to the whiskeyId and userId'''
+        try:
+            self.db.connect()
+            with self.db.transaction():
+                peewee_models.UserRating.create(
+                    whiskeyId=whiskeyId,
+                    rating=rating,
+                    notes=notes,
+                    userId=userId,
+                    sweet=sweet,
+                    sour=sour,
+                    heat=heat,
+                    smooth=smooth,
+                    finish=finish,
+                    crisp=crisp,
+                    leather=leather,
+                    wood=wood,
+                    smoke=smoke,
+                    citrus=citrus,
+                    floral=floral,
+                    fruit=fruit,
+                    createdTime=datetime.datetime.now(),
+                    lastUpdatedTime=datetime.datetime.now())
+            self.db.close
+
+        except IntegrityError:
+            self.logger.error("Failed to add user rating for whiskey %s by user %s, score for this whiskeyId is already present", whiskeyId, userId)
+            self.db.close
+            raise
+        
+    def getUserRatingByWhiskeyId(self, whiskeyId, userId):
+        '''Lookup a user ratings by whiskeyId and userId'''
+        self.db.connect()
+        r = peewee_models.UserRating.get(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
+        wbtnRating = models.UserRating(whiskeyId=r.whiskeyId, userId=r.userId, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
+        self.db.close
+        return wbtnRating
+
+    def deleteUserRatingByWhiskeyId(self, whiskeyId, userId):
+        '''Delete a user rating by whiskeyId and userId'''
+        self.db.connect()
+        self.logger.info("Deleteing user rating for whiskey %s for user %s", whiskeyId, userId)
+        query = peewee_models.UserRating.delete().where(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
+        query.execute()
+        self.db.close
+
+    def clearUserRatingTable(self):
+        self.db.connect()
+        self.logger.info("Clearing user rating table")
+        peewee_models.UserRating.drop_table(True)
+        self.db.create_tables([peewee_models.UserRating], safe=True)
+        self.db.close

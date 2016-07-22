@@ -19,6 +19,7 @@ class DBTest(unittest.TestCase):
         DBTest.dbm.clearWhiskeyTable()
         DBTest.dbm.clearBlogEntryTable()
         DBTest.dbm.clearCalculatedScoreTable()
+        DBTest.dbm.clearUserRatingTable()
 
     @classmethod
     def tearDownClass(cls):
@@ -26,6 +27,7 @@ class DBTest(unittest.TestCase):
         DBTest.dbm.clearWhiskeyTable()
         DBTest.dbm.clearBlogEntryTable()
         DBTest.dbm.clearCalculatedScoreTable()
+        DBTest.dbm.clearUserRatingTable()
 
     def test_init(self):
         for table in self.dbm.wbtnTables:
@@ -396,6 +398,97 @@ class DBTest(unittest.TestCase):
         self.dbm.deleteCalculatedScoreByWhiskeyId(w1.whiskeyId)
         with self.assertRaises(DoesNotExist):
             self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=w1.whiskeyId)
+            
+    def test_addUserRating(self):
+        ''' Test whiskey '''
+        tname1 = "Test Whiskey 21"
+        tname2 = "Test Whiskey 22"
+        tprice = 35.00
+        tproof = 80
+        tage = 18
+        ticon = bytearray("waashdkgfualesbsbvlansufbalsug")
+        tstyle = "Bourbon"
+        
+        ''' Test user '''
+        te1 = "testdsjkhg21@jhglsg.asfg.edu"
+        te2 = "test22@dmjkg.com"
+        testFirst = "sfdgjnk"
+        testMI = "SIOH"
+        testLast = "sdharhIoiu"
+        testSuffix = "sdfhas"
+        testIcon = bytearray("ashdkgfualesbsbvlansufbalsug")
+        
+        ''' Test rating '''
+        trating = 3.00
+        tsweet = 4.25
+        tsour = 3.75
+        theat = 2.00
+        tsmooth = 2.00
+        tfinish = 1.75
+        tcrisp = 1.00
+        tleather = 5.00
+        twood = 4.75
+        tsmoke = 2.00
+        tcitrus = 4.00
+        tfloral = 3.00
+        tfruit = 3.00
+        tnotes = "asiugba7oebgiuWB78VBA E87QG 78OQBW8YRFB IA8WBRFOGABUYERGBLAWR"
+        
+        freezer = freeze_time("2012-01-14 12:00:01")
+        freezer.start()
+        
+        '''Create test whiskies'''
+        self.dbm.addWhiskey(name=tname1, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        w1 = self.dbm.getWhiskeyByName(tname1)
+        w2 = self.dbm.getWhiskeyByName(tname2)
+        
+        '''Create test users'''
+        self.dbm.addNormalUser(email=te1, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addNormalUser(email=te2, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        u1 = self.dbm.getUserByEmail(te1)
+        u2 = self.dbm.getUserByEmail(te2)
+        
+        '''Simple case'''
+        self.dbm.addUserRating(whiskeyId=w1.whiskeyId, userId=u1.userId, rating=trating, notes=tnotes)
+        r1 = self.dbm.getUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
+        self.assertEqual(r1.rating, trating)
+        self.assertEqual(r1.notes, tnotes)
+        self.assertEqual(r1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(r1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''College rater case'''
+        self.dbm.addUserRating(whiskeyId=w2.whiskeyId, userId=u2.userId, rating=trating, notes=tnotes, sweet=tsweet, sour=tsour, heat=theat, smooth=tsmooth, finish=tfinish, crisp=tcrisp, leather=tleather, wood=twood, smoke=tsmoke, citrus=tcitrus, floral=tfloral, fruit=tfruit)
+        r2 = self.dbm.getUserRatingByWhiskeyId(w2.whiskeyId, u2.userId)
+        self.assertEqual(r2.rating, trating)
+        self.assertEqual(r2.notes, tnotes)
+        self.assertEqual(r2.sweet, tsweet)
+        self.assertEqual(r2.sour, tsour)
+        self.assertEqual(r2.heat, theat)
+        self.assertEqual(r2.smooth, tsmooth)
+        self.assertEqual(r2.finish, tfinish)
+        self.assertEqual(r2.crisp, tcrisp)
+        self.assertEqual(r2.leather, tleather)
+        self.assertEqual(r2.wood, twood)
+        self.assertEqual(r2.smoke, tsmoke)
+        self.assertEqual(r2.citrus, tcitrus)
+        self.assertEqual(r2.floral, tfloral)
+        self.assertEqual(r2.fruit, tfruit)
+        self.assertEqual(r2.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(r2.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        
+        '''User rating already exists for whiskey'''
+        with self.assertRaises(IntegrityError):
+            self.dbm.addUserRating(whiskeyId=w1.whiskeyId, userId=u1.userId, rating=trating, notes=tnotes)
+            
+        '''User rating does not exist, by whiskey id'''
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getUserRatingByWhiskeyId(w2.whiskeyId, u1.userId)
+
+        '''Delete user rating by whiskeyId'''
+        self.dbm.deleteUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
+        with self.assertRaises(DoesNotExist):
+            self.dbm.getUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
     
 
 # Necessary to be able to run the unit test
