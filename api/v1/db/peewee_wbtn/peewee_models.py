@@ -30,6 +30,7 @@ class User(BaseModel):
     lastName = peewee.CharField(null=True)
     suffix = peewee.CharField(null=True)
     email = peewee.CharField(unique=True)
+    facebookId = peewee.CharField(null=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
     icon = peewee.BlobField(null=True)

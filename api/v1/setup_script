@@ -9,3 +9,4 @@ pip install PyMySQL
 pip install -U mock
 pip install freezegun
 pip install pycodestyle
+pip install rauth

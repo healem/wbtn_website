@@ -2,13 +2,14 @@
 
 class User():
 
-    def __init__(self, userId, email, createdTime, userRater, blogWriter, collegeRater, whiskeyAdmin, firstName=None, middleInitial=None, lastName=None, suffix=None, lastUpdatedTime=None, icon=None):
+    def __init__(self, userId, email, createdTime, userRater, blogWriter, collegeRater, whiskeyAdmin, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, lastUpdatedTime=None, icon=None):
         self.userId = userId
         self.firstName = firstName
         self.middleInitial = middleInitial
         self.lastName = lastName
         self.suffix = suffix
         self.email = email
+        self.facebookId = facebookId
         self.createdTime = createdTime
         self.lastUpdatedTime = lastUpdatedTime
         self.icon = icon

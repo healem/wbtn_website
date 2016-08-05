@@ -4,7 +4,7 @@ import models
 import logging
 import datetime
 from peewee_wbtn import peewee_models
-from peewee import IntegrityError
+from peewee import IntegrityError, DoesNotExist
 import ConfigParser
 
 class DbManager():
@@ -50,7 +50,7 @@ class DbManager():
     ##
     #############################################
 
-    def addUser(self, email, userRater=False, blogWriter=False, collegeRater=False, whiskeyAdmin=False, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
+    def addUser(self, email, facebookId=None, userRater=False, blogWriter=False, collegeRater=False, whiskeyAdmin=False, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a new user to the database.  Must provide unique email address'''
         try:
             self.db.connect()
@@ -61,6 +61,7 @@ class DbManager():
                     lastName=lastName,
                     suffix=suffix,
                     email=email,
+                    facebookId=facebookId,
                     icon=icon,
                     createdTime=datetime.datetime.now(),
                     lastUpdatedTime=datetime.datetime.now(),
@@ -75,27 +76,44 @@ class DbManager():
             self.db.close
             raise
 
-    def addNormalUser(self, email, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
+    def addNormalUser(self, email, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a normal user that can give their rating of whiskeys'''
-        self.addUser(email=email, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True)
+        self.addUser(email=email, facebookId=facebookId, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True)
 
-    def addBlogWriterUser(self, email, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
+    def addBlogWriterUser(self, email, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a user that can rate whiskeys and write blog entries'''
-        self.addUser(email=email, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, blogWriter=True)
+        self.addUser(email=email, facebookId=facebookId, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, blogWriter=True)
 
-    def addCollegeRaterUser(self, email, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
+    def addCollegeRaterUser(self, email, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a user that can rate whiskeys and provide college ratings'''
-        self.addUser(email=email, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, collegeRater=True)
+        self.addUser(email=email, facebookId=facebookId, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, collegeRater=True)
 
-    def addWhiskeyAdminUser(self, email, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
+    def addWhiskeyAdminUser(self, email, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, icon=None):
         '''Add a whiskey admin that can rate whiskeys, blog, and provide college ratings'''
-        self.addUser(email=email, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, blogWriter=True, collegeRater=True, whiskeyAdmin=True)
+        self.addUser(email=email, facebookId=facebookId, firstName=firstName, middleInitial=middleInitial, lastName=lastName, suffix=suffix, icon=icon, userRater=True, blogWriter=True, collegeRater=True, whiskeyAdmin=True)
+
+    def addFacebookAccountToUser(self, userId, facebookId):
+        '''Add a facebook account to an existing user'''
+        lastUpdatedTime = datetime.datetime.now()
+        query = peewee_models.User.update(lastUpdatedTime=lastUpdatedTime, facebookId=facebookId).where(peewee_models.User.id == userId)
+        rowsUpdated = 0
+        self.db.connect()
+        with self.db.transaction():
+            rowsUpdated = query.execute()
+        self.db.close
+        
+        if rowsUpdated == 0:
+            self.logger.error("Unable to add facebook account: User %s not found", userId)
+            raise DoesNotExist("Did not find user %s", userId)
+        elif rowsUpdated > 1:
+            self.logger.error("%d users found for id %s", rowsUpdated, userId)
+            raise IntegrityError("%d rows found with userId %s", rowsUpdated, userId)
 
     def getUserByEmail(self, email):
         '''Lookup a user by email address'''
         self.db.connect()
         user = peewee_models.User.get(peewee_models.User.email == email)
-        wbtnUser = models.User(userId=user.id, email=user.email, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
         self.db.close
         return wbtnUser
 
@@ -103,7 +121,7 @@ class DbManager():
         '''Lookup a user by userId'''
         self.db.connect()
         user = peewee_models.User.get(peewee_models.User.id == userId)
-        wbtnUser = models.User(userId=user.id, email=user.email, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
         self.db.close
         return wbtnUser
 
