@@ -35,6 +35,7 @@ class FacebookSignIn(object):
         return url_for('show_preloader_start_authentication', _external=True)
 
     def authorize(self):
+        self.logger.debug("Starting facebook authorization")
         return redirect(self.service.get_authorize_url(
             scope='public_profile,email',
             response_type='code',
@@ -43,12 +44,14 @@ class FacebookSignIn(object):
 
     def callback(self):
         if 'code' not in request.args:
+            self.logger.error("Failed to get facebook authorization: request arguments are wrong")
             return None, None, None, None
         oauth_session = self.service.get_auth_session(
                 data={'code': request.args['code'],
                       'grant_type': 'authorization_code',
                       'redirect_uri': self.get_callback_url()})
         me = oauth_session.get('me?fields=id,email,first_name,last_name').json()
+        self.logger.debug("Facebook authorization succesful for email %s", me.get('email'))
         return (
             me['id'],
             me.get('email'),
