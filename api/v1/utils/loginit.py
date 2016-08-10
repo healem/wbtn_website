@@ -55,7 +55,7 @@ TEST_LOGGING = {
         },
         'console': {
                 'class': 'logging.StreamHandler',
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'formatter': 'default',
         },
     },

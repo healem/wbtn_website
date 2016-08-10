@@ -3,21 +3,27 @@
 import sys
 import logging
 import unittest
+import ConfigParser
 from utils import loginit
 from social import facebook
 from social import users
 from social.social_types import Social
 
 class FBTest(unittest.TestCase):
-    
+    configFile = "/home4/healem/keys/wbtn.cnf"
     fb = None
     accessToken = None
+    userAccessToken = None
 
     @classmethod
     def setUpClass(cls):
         loginit.initTestLogging()
         FBTest.fb = facebook.Facebook()
         FBTest.accessToken = FBTest.fb.getAppAccessToken()
+        
+        self.config = ConfigParser.ConfigParser()
+        self.config.read(self.configFile)
+        FBTest.userAccessToken = self.config.get("auth", "test_access_token")
         
     @classmethod
     def tearDownClass(cls):
@@ -56,7 +62,7 @@ class FBTest(unittest.TestCase):
         self.assertTrue(FBTest.fb.updateTestUser(accessToken=FBTest.accessToken, userId=tu3.userId, userName=u4, password='sdhaerhsdg'))
         tu4 = FBTest.fb.getTestUser(accessToken=FBTest.accessToken, userId=tu3.userId)
         self.assertEqual(tu4.userName, u4)
-        
+       
         
 # Necessary to be able to run the unit test
 if (__name__ == '__main__'):

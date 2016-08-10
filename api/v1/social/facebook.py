@@ -3,8 +3,9 @@
 import logging
 from flask import current_app, redirect, url_for, request, session
 from rauth import OAuth2Service
-from urllib2 import urlopen, HTTPError
+from urllib2 import urlopen, HTTPError, HTTPCookieProcessor, build_opener, Request
 from urllib import urlencode
+from cookielib import CookieJar
 from urlparse import parse_qsl
 from functools import wraps
 import simplejson
@@ -14,8 +15,11 @@ from social.social_types import Social
 
 class FacebookError(HTTPError):
     def __init__(self, err):
+        self.logClassName = '.'.join([__name__, self.__class__.__name__])
+        self.logger = logging.getLogger(self.logClassName)
         try:
             data = simplejson.loads(err.fp.read().decode())['error']
+            self.logger.debug("Raw error response: %s", data)
         except (ValueError, KeyError):
             # something REALLY bad happened and Facebook didn't send along
             # their usual error payload
@@ -25,8 +29,12 @@ class FacebookError(HTTPError):
                 'type': None,
             }
 
-        HTTPError.__init__(self, err.url, err.code, data['message'],
-            err.headers, err.fp)
+        if '__debug__' in data:
+            HTTPError.__init__(self, err.url, err.code, data['__debug__'],
+                err.headers, err.fp)
+        else:
+            HTTPError.__init__(self, err.url, err.code, data['message'],
+                err.headers, err.fp)
 
         self.api_code = data['code']
         self.type = data['type']
@@ -49,7 +57,7 @@ class Facebook(object):
     configFile = "/home4/healem/keys/wbtn.cnf"
     facebookIdTag = "facebook_id"
     facebookSecretTag = "facebook_secret"
-    baseUrl = "https://graph.facebook.com/"
+    baseUrl = "https://graph.facebook.com/v2.7/"
 
     def __init__(self):
         self.logClassName = '.'.join([__name__, self.__class__.__name__])
@@ -66,8 +74,8 @@ class Facebook(object):
             name='facebook',
             client_id=self.fbid,
             client_secret=self.fbsecret,
-            authorize_url='https://graph.facebook.com/oauth/authorize',
-            access_token_url='https://graph.facebook.com/oauth/access_token',
+            authorize_url='https://graph.facebook.com/v2.7/oauth/authorize',
+            access_token_url='https://graph.facebook.com/v2.7/oauth/access_token',
             base_url=self.baseUrl
         )
 
@@ -104,13 +112,15 @@ class Facebook(object):
     '''
     @translate_http_error
     def getAppAccessToken(self):
-        resp = urlopen('{}/oauth/access_token?{}'.format(self.baseUrl, urlencode({
+        resp = urlopen('{}oauth/access_token?{}'.format(self.baseUrl, urlencode({
             'client_id': self.fbid,
             'client_secret': self.fbsecret,
             'grant_type': 'client_credentials',
+            'debug': 'all',
         })))
         
-        r = dict(parse_qsl(resp.read()))['access_token']
+        r = simplejson.loads(resp.read().decode())['access_token']
+        #self.logger.debug("Raw response: %s", r)
         
         return r
     
@@ -242,3 +252,43 @@ class Facebook(object):
             return True
         else:
             return False
+     
+''' This is meant for testing use only! '''   
+class FacebookUser(object):
+    jar = CookieJar()
+    cookie = HTTPCookieProcessor(jar)       
+    opener = build_opener(cookie)
+
+    headers = {
+        "User-Agent" : "Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.8.1.14) Gecko/20080609 Firefox/2.0.0.14",
+        "Accept" : "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,text/png,*/*;q=0.5",
+        "Accept-Language" : "en-us,en;q=0.5",
+        "Accept-Charset" : "ISO-8859-1",
+        "Content-type": "application/x-www-form-urlencoded",
+        "Host": "m.facebook.com"
+    }
+    
+    def __init__(self):
+        self.logClassName = '.'.join([__name__, self.__class__.__name__])
+        self.logger = logging.getLogger(self.logClassName)
+    
+    @translate_http_error
+    def login(self, email, password):
+        params = {
+            'email': email,
+            'pass': password,
+            'login':'Log+In',
+            }
+        
+        req = Request('http://m.facebook.com/login.php?m=m&refsrc=m.facebook.com%2F', urlencode(params), self.headers)
+        resp = self.opener.open(req)
+        r = resp.read()
+
+        self.logger.debug("Raw response from login request: %s with code %d", r, resp.code)
+        
+        if resp.code == 200:
+            return True
+        else:
+            return False
+
+    
