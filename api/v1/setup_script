@@ -10,3 +10,5 @@ pip install -U mock
 pip install freezegun
 pip install pycodestyle
 pip install rauth
+pip install simplejson
+pip install enum
