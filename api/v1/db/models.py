@@ -1,6 +1,6 @@
 #!../../bin/python
 
-class User():
+class User(object):
 
     def __init__(self, userId, email, createdTime, userRater, blogWriter, collegeRater, whiskeyAdmin, facebookId=None, firstName=None, middleInitial=None, lastName=None, suffix=None, lastUpdatedTime=None, icon=None):
         self.userId = userId
@@ -18,7 +18,7 @@ class User():
         self.collegeRater = collegeRater
         self.whiskeyAdmin = whiskeyAdmin
 
-class Whiskey():
+class Whiskey(object):
 
     def __init__(self, whiskeyId, name, createdTime, price=None, proof=None, style=None, age=None, icon=None, lastUpdatedTime=None):
         self.whiskeyId = whiskeyId
@@ -31,7 +31,7 @@ class Whiskey():
         self.createdTime = createdTime
         self.lastUpdatedTime = lastUpdatedTime
 
-class BlogEntry():
+class BlogEntry(object):
 
     def __init__(self, blogEntryId, userId, title, text, createdTime, lastUpdatedTime=None):
         self.blogEntryId = blogEntryId
@@ -41,7 +41,7 @@ class BlogEntry():
         self.createdTime = createdTime
         self.lastUpdatedTime = lastUpdatedTime
 
-class UserRating():
+class UserRating(object):
 
     def __init__(self, whiskeyId, userId, rating, createdTime, lastUpdatedTime=None, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
         self.whiskeyId = whiskeyId
@@ -63,7 +63,7 @@ class UserRating():
         self.floral = floral
         self.fruit = fruit
 
-class CalculatedScore():
+class CalculatedScore(object):
 
     def __init__(self, whiskeyId, score, value, drinkability, complexity, mouthfeel, createdTime, lastUpdatedTime=None):
         self.whiskeyId = whiskeyId

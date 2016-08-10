@@ -7,7 +7,7 @@ from peewee_wbtn import peewee_models
 from peewee import IntegrityError, DoesNotExist
 import ConfigParser
 
-class DbManager():
+class DbManager(object):
     wbtnTables = [peewee_models.User, peewee_models.Whiskey, peewee_models.BlogEntry, peewee_models.CalculatedScore, peewee_models.UserRating]
     configFile = "/home4/healem/keys/wbtn.cnf"
     dbUser = "healem_wbtn"
