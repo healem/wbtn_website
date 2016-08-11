@@ -98,9 +98,11 @@ class DBTest(unittest.TestCase):
         with self.assertRaises(IntegrityError):
             self.dbm.addNormalUser(email=testEmail)
 
-        '''User does not exist'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getUserByEmail(email="does@not.exist")
+        '''User does not exist, lookup by email'''
+        self.assertIsNone(self.dbm.getUserByEmail(email="does@not.exist"))
+        
+        '''User does not exist, lookup by ID'''
+        self.assertIsNone(self.dbm.getUserById(userId=3457))
 
         '''Delete user by email'''
         self.dbm.deleteUserByEmail(te1)

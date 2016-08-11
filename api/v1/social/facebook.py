@@ -10,8 +10,9 @@ from urlparse import parse_qsl
 from functools import wraps
 import simplejson
 import ConfigParser
-from social.users import TestUser
-from social.social_types import Social
+from users import TestUser
+from social_types import SocialType
+from interface import Social
 
 class FacebookError(HTTPError):
     def __init__(self, err):
@@ -53,11 +54,10 @@ def translate_http_error(func):
             raise FacebookError(err)
     return inner
 
-class Facebook(object):
-    configFile = "/home4/healem/keys/wbtn.cnf"
+class Facebook(Social):
     facebookIdTag = "facebook_id"
     facebookSecretTag = "facebook_secret"
-    baseUrl = "https://graph.facebook.com/v2.7/"
+    fbBaseUrl = "https://graph.facebook.com/v2.7/"
 
     def __init__(self):
         self.logClassName = '.'.join([__name__, self.__class__.__name__])
@@ -70,17 +70,16 @@ class Facebook(object):
         self.fbid = self.config.get("auth", self.facebookIdTag)
         self.fbsecret = self.config.get("auth", self.facebookSecretTag)
         
+        super(Facebook, self).__init__(providerType=SocialType.facebook, appId=self.fbid, appSecret=self.fbsecret, baseUrl=self.fbBaseUrl)
+        
         self.service = OAuth2Service(
             name='facebook',
-            client_id=self.fbid,
-            client_secret=self.fbsecret,
+            client_id=self.appId,
+            client_secret=self.appSecret,
             authorize_url='https://graph.facebook.com/v2.7/oauth/authorize',
             access_token_url='https://graph.facebook.com/v2.7/oauth/access_token',
             base_url=self.baseUrl
         )
-
-    def get_callback_url(self):
-        return url_for('show_preloader_start_authentication', _external=True)
 
     def authorize(self):
         self.logger.debug("Starting facebook authorization")
@@ -89,7 +88,7 @@ class Facebook(object):
             response_type='code',
             redirect_uri=self.get_callback_url()
         ))
-
+    
     def callback(self):
         if 'code' not in request.args:
             self.logger.error("Failed to get facebook authorization: request arguments are wrong")
@@ -105,16 +104,36 @@ class Facebook(object):
             me.get('email'),
             me.get('first_name'),
             me.get('last_name'))
-            
-    ''' Get an access token from facebook - allows API access to app
+
+    ''' Verify a user access token
         
-        :return: access token
+        param accessToken: The user access token, returned by successful user login
+        
+        :return: True if token is good
+    '''
+    def verify(self, accessToken):
+        self.logger.debug("Verifying facebook token")
+        resp = urlopen('{}/debug_token?{}'.format(self.baseUrl, urlencode({
+            'input_token': accessToken,
+            'access_token': self.getAppAccessToken(),
+        })))
+        
+        r = simplejson.loads(resp.read().decode())['data']
+        if r['app_id'] == self.appId and r['is_valid']  == 'true':
+            return True
+        else:
+            self.logger.error("Facebook token verify failed: expected %s and got %s: is_valid was %s", self.appId, r['app_id'], r['is_valid'])
+            return False
+            
+    ''' Get an app access token from facebook - allows API access to app
+        
+        :return: app access token
     '''
     @translate_http_error
     def getAppAccessToken(self):
         resp = urlopen('{}oauth/access_token?{}'.format(self.baseUrl, urlencode({
-            'client_id': self.fbid,
-            'client_secret': self.fbsecret,
+            'client_id': self.appId,
+            'client_secret': self.appSecret,
             'grant_type': 'client_credentials',
             'debug': 'all',
         })))
@@ -132,7 +151,7 @@ class Facebook(object):
     '''
     @translate_http_error
     def getTestUsers(self, accessToken):
-        resp = urlopen('{}/{}/accounts/test-users?{}'.format(self.baseUrl, self.fbid, urlencode({
+        resp = urlopen('{}/{}/accounts/test-users?{}'.format(self.baseUrl, self.appId, urlencode({
             'access_token': accessToken})))
         
         r = simplejson.loads(resp.read().decode())['data']
@@ -166,7 +185,7 @@ class Facebook(object):
         if 'email' in r:
             e = r['email']
         
-        u = TestUser(userId=r['id'], email=e, userName=r['name'], password=None, locale=r['locale'], social=Social.facebook, loginUrl=None)
+        u = TestUser(userId=r['id'], email=e, userName=r['name'], password=None, locale=r['locale'], social=SocialType.facebook, loginUrl=None)
         
         return u
     
@@ -182,7 +201,7 @@ class Facebook(object):
     '''
     @translate_http_error
     def addTestUser(self, accessToken, userName, locale='en_US', permissions='read_stream, email'):
-        resp = urlopen('{}/{}/accounts/test-users?{}'.format(self.baseUrl, self.fbid, urlencode({
+        resp = urlopen('{}/{}/accounts/test-users?{}'.format(self.baseUrl, self.appId, urlencode({
                 'installed': True,
                 'locale': locale,
                 'permissions': permissions,
@@ -195,7 +214,7 @@ class Facebook(object):
         #self.logger.debug("Full response to add user: %s", r)
         self.logger.debug("Created user: %s with id: %s and locale: %s", r['email'], r['id'], locale)
         
-        u = TestUser(userId=r['id'], email=r['email'], userName=userName, password=r['password'], locale=locale, social=Social.facebook, loginUrl=r['login_url'])
+        u = TestUser(userId=r['id'], email=r['email'], userName=userName, password=r['password'], locale=locale, social=SocialType.facebook, loginUrl=r['login_url'])
 
         return u
     

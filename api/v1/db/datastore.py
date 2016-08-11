@@ -111,17 +111,27 @@ class DbManager(object):
 
     def getUserByEmail(self, email):
         '''Lookup a user by email address'''
+        wbtnUser = None
         self.db.connect()
-        user = peewee_models.User.get(peewee_models.User.email == email)
-        wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        try:
+            user = peewee_models.User.get(peewee_models.User.email == email)
+            wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+            
         self.db.close
         return wbtnUser
 
     def getUserById(self, userId):
         '''Lookup a user by userId'''
+        wbtnUser = None
         self.db.connect()
-        user = peewee_models.User.get(peewee_models.User.id == userId)
-        wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        try:
+            user = peewee_models.User.get(peewee_models.User.id == userId)
+            wbtnUser = models.User(userId=user.id, email=user.email, facebookId=user.facebookId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnUser
 
