@@ -48,9 +48,9 @@ def oauth_callback(provider):
     if email is None:
         return None
     user = dbm.getUserByEmail(email)
-    if not user:
-        dbm.addNormalUser(email=testEmail, facebookId=socialId, firstName=firstName, lastName=lastName)
-        user = dbm.getUserByEmail(email)
+    #if not user:
+    #    dbm.addNormalUser(email=testEmail, facebookId=socialId, firstName=firstName, lastName=lastName)
+    #    user = dbm.getUserByEmail(email)
         
     return user
 
