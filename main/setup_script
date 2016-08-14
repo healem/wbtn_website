@@ -1,0 +1,14 @@
+virtualenv main --python=python2.7
+source main/bin/activate
+pip install -U pip wheel setuptools
+pip install -Iv flup==1.0.3.dev-20110405
+pip install jsonify
+pip install Flask
+pip install peewee
+pip install PyMySQL
+pip install -U mock
+pip install freezegun
+pip install pycodestyle
+pip install rauth
+pip install simplejson
+pip install enum
