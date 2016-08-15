@@ -2,7 +2,7 @@
 import ConfigParser
 from utils import loginit
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -25,7 +25,11 @@ tasks = [
 
 @app.route('/')
 def hello_world():
-    return "Hello World!"
+    return render_template("frontend.html")
+
+@app.route('/minor')
+def minor():
+    return render_template("minor.html")
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
