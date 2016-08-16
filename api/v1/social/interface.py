@@ -33,3 +33,6 @@ class Social(object):
                 provider = provider_class()
                 self.providers[provider.providerType] = provider
         return self.providers[providerType]
+    
+    def verify(self, accessToken):
+        pass
