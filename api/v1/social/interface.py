@@ -5,7 +5,7 @@ import logging
 class Social(object):
     providers = None
     providerType = None
-    configFile = "/home4/healem/keys/wbtn.cnf"
+    configFile = "/home/teamgoge/keys/wbtn.cnf"
     appId = None
     appSecret = None
     baseUrl = None

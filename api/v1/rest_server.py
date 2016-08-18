@@ -6,6 +6,7 @@ import social.interface
 import social.social_types
 from db import datastore
 from utils import loginit
+from cachetools import LRUCache
 
 from flask import Flask, jsonify
 from flask_restful import reqparse, abort, Api, Resource
@@ -28,6 +29,7 @@ class Users(Resource):
         super(Users, self).__init__()
         self.logClassName = '.'.join([__name__, self.__class__.__name__])
         self.logger = logging.getLogger(self.logClassName)
+        self.cache = LRUCache(maxsize=2)
         
     def post(self):
         try:
@@ -41,6 +43,7 @@ class Users(Resource):
             
             auth = Social.get_provider(SocialType.provider)
             
+            #see if user is in cache
             #verify user
             #cache token
             #get email, make sure local user exists, if not - create

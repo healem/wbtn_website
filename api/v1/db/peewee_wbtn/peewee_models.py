@@ -3,14 +3,14 @@
 import peewee
 import ConfigParser
 from playhouse.shortcuts import RetryOperationalError
-configFile = "/home4/healem/keys/wbtn.cnf"
+configFile = "/home/teamgoge/keys/wbtn.cnf"
 
 config = ConfigParser.ConfigParser()
 config.read(configFile)
-userName = "healem_wbtn"
+userName = "teamgoge_wbtn"
 readPw = config.get("db", userName)
 
-dbName = "healem_wbtn_test"
+dbName = "teamgoge_wbtn_test"
 
 class WBTNDB(RetryOperationalError, peewee.MySQLDatabase):
     pass

@@ -1,9 +1,12 @@
 api/bin
 api/include
 api/lib
+api/lib64
 main/bin
 main/include
 main/lib
+main/lib64
 *.pyc
 .coverage
 *.swp
+*pip-selfcheck.json

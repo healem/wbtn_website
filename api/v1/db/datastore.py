@@ -9,8 +9,8 @@ import ConfigParser
 
 class DbManager(object):
     wbtnTables = [peewee_models.User, peewee_models.Whiskey, peewee_models.BlogEntry, peewee_models.CalculatedScore, peewee_models.UserRating]
-    configFile = "/home4/healem/keys/wbtn.cnf"
-    dbUser = "healem_wbtn"
+    configFile = "/home/teamgoge/keys/wbtn.cnf"
+    dbUser = "teamgoge_wbtn"
 
     def __init__(self, testMode=False):
         self.logClassName = '.'.join([__name__, self.__class__.__name__])
@@ -27,7 +27,7 @@ class DbManager(object):
         if self.testMode:
             self.logger.info("Loading test db")
             self.dbName = self.config.get("db", "test_db")
-        else:
+        else: # pragma: no cover
             self.logger.info("Loading production db")
             self.dbName = self.config.get("db", "prod_db")
 
@@ -139,23 +139,38 @@ class DbManager(object):
         '''Delete a user by email address'''
         self.db.connect()
         self.logger.info("Deleteing user %s", email)
-        query = peewee_models.User.delete().where(peewee_models.User.email == email)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.User.delete().where(peewee_models.User.email == email)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete user %s", email)
+            self.db.close
+            raise
+        
         self.db.close
 
     def deleteUserById(self, userId):
         '''Delete a user by userId'''
         self.db.connect()
         self.logger.info("Deleteing user %s", userId)
-        query = peewee_models.User.delete().where(peewee_models.User.id == userId)
-        query.execute()
+        try:
+            with self.db.transaction():
+                query = peewee_models.User.delete().where(peewee_models.User.id == userId)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete user %d", userId)
+            self.db.close
+            raise
+        
         self.db.close
 
     def clearUserTable(self):
         self.db.connect()
         self.logger.info("Clearing user table")
-        peewee_models.User.drop_table(True)
-        self.db.create_tables([peewee_models.User], safe=True)
+        peewee_models.User.drop_table(True, True)
+        #self.db.create_tables([peewee_models.User], safe=True)
         self.db.close
         
     #############################################
@@ -189,17 +204,27 @@ class DbManager(object):
         
     def getWhiskeyByName(self, name):
         '''Lookup a whiskey by name'''
+        wbtnWhiskey = None
         self.db.connect()
-        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
-        wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        try:
+            whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
+            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnWhiskey
 
     def getWhiskeyById(self, whiskeyId):
         '''Lookup whiskey by ID'''
+        wbtnWhiskey = None
         self.db.connect()
-        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.id == whiskeyId)
-        wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        try:
+            whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.id == whiskeyId)
+            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnWhiskey
 
@@ -207,23 +232,39 @@ class DbManager(object):
         '''Delete a whiskey by name'''
         self.db.connect()
         self.logger.info("Deleteing whiskey %s", name)
-        query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.name == name)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.name == name)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete whiskey %s", name)
+            self.db.close
+            raise
+        
         self.db.close
 
     def deleteWhiskeyById(self, whiskeyId):
         '''Delete a whiskey by whiskeyId'''
         self.db.connect()
         self.logger.info("Deleteing whiskey %s", whiskeyId)
-        query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.id == whiskeyId)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.Whiskey.delete().where(peewee_models.Whiskey.id == whiskeyId)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete whiskey %d", whiskeyId)
+            self.db.close
+            raise
+        
         self.db.close
 
     def clearWhiskeyTable(self):
         self.db.connect()
         self.logger.info("Clearing whiskey table")
-        peewee_models.Whiskey.drop_table(True)
-        self.db.create_tables([peewee_models.Whiskey], safe=True)
+        peewee_models.Whiskey.drop_table(True, True)
+        #self.db.create_tables([peewee_models.Whiskey], safe=True)
         self.db.close
         
     #############################################
@@ -254,17 +295,27 @@ class DbManager(object):
         
     def getBlogEntryByTitle(self, title):
         '''Lookup a blog entry by title'''
+        wbtnBlog = None
         self.db.connect()
-        blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.title == title)
-        wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        try:
+            blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.title == title)
+            wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnBlog
 
     def getBlogEntryById(self, blogEntryId):
         '''Lookup a blog entry by ID'''
+        wbtnBlog = None
         self.db.connect()
-        blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.id == blogEntryId)
-        wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        try:
+            blog = peewee_models.BlogEntry.get(peewee_models.BlogEntry.id == blogEntryId)
+            wbtnBlog = models.BlogEntry(blogEntryId=blog.id, title=blog.title, userId=blog.id, text=blog.text, createdTime=blog.createdTime, lastUpdatedTime=blog.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnBlog
 
@@ -272,23 +323,39 @@ class DbManager(object):
         '''Delete a blog entry by title'''
         self.db.connect()
         self.logger.info("Deleteing blog entry %s", title)
-        query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.title == title)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.title == title)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete blog entry %s", title)
+            self.db.close
+            raise
+        
         self.db.close
 
     def deleteBlogEntryById(self, blogEntryId):
         '''Delete a blog entry by blogEntryId'''
         self.db.connect()
         self.logger.info("Deleteing blog entry %s", blogEntryId)
-        query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.id == blogEntryId)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.BlogEntry.delete().where(peewee_models.BlogEntry.id == blogEntryId)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete blog entry %d", blogEntryId)
+            self.db.close
+            raise
+        
         self.db.close
 
     def clearBlogEntryTable(self):
         self.db.connect()
         self.logger.info("Clearing blog entry table")
         peewee_models.BlogEntry.drop_table(True)
-        self.db.create_tables([peewee_models.BlogEntry], safe=True)
+        #self.db.create_tables([peewee_models.BlogEntry], safe=True)
         self.db.close
 
     #############################################
@@ -322,18 +389,28 @@ class DbManager(object):
         
     def getCalculatedScoreByWhiskeyId(self, whiskeyId):
         '''Lookup a calculated score by whiskeyId'''
+        wbtnScore = None
         self.db.connect()
-        score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
-        wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        try:
+            score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
+            wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnScore
 
     def getCalculatedScoreByWhiskeyName(self, name):
         '''Lookup a calculated score by whiskey name'''
+        wbtnScore = None
         self.db.connect()
-        whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
-        score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskey.id)
-        wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        try:
+            whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
+            score = peewee_models.CalculatedScore.get(peewee_models.CalculatedScore.whiskeyId == whiskey.id)
+            wbtnScore = models.CalculatedScore(whiskeyId=score.whiskeyId, score=score.score, value=score.value, drinkability=score.drinkability, complexity=score.complexity, mouthfeel=score.mouthfeel, createdTime=score.createdTime, lastUpdatedTime=score.lastUpdatedTime)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnScore
 
@@ -341,15 +418,23 @@ class DbManager(object):
         '''Delete a calculated score by whiskeyId'''
         self.db.connect()
         self.logger.info("Deleteing calculated score for whiskey %s", whiskeyId)
-        query = peewee_models.CalculatedScore.delete().where(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.CalculatedScore.delete().where(peewee_models.CalculatedScore.whiskeyId == whiskeyId)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete calculated score for whiskey %d", whiskeyId)
+            self.db.close
+            raise
+        
         self.db.close
 
     def clearCalculatedScoreTable(self):
         self.db.connect()
         self.logger.info("Clearing calculated score table")
         peewee_models.CalculatedScore.drop_table(True)
-        self.db.create_tables([peewee_models.CalculatedScore], safe=True)
+        #self.db.create_tables([peewee_models.CalculatedScore], safe=True)
         self.db.close
         
     #############################################
@@ -393,9 +478,14 @@ class DbManager(object):
         
     def getUserRatingByWhiskeyId(self, whiskeyId, userId):
         '''Lookup a user ratings by whiskeyId and userId'''
+        wbtnRating = None
         self.db.connect()
-        r = peewee_models.UserRating.get(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
-        wbtnRating = models.UserRating(whiskeyId=r.whiskeyId, userId=r.userId, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
+        try:
+            r = peewee_models.UserRating.get(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
+            wbtnRating = models.UserRating(whiskeyId=r.whiskeyId, userId=r.userId, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
+        except DoesNotExist:
+            pass
+        
         self.db.close
         return wbtnRating
 
@@ -403,13 +493,21 @@ class DbManager(object):
         '''Delete a user rating by whiskeyId and userId'''
         self.db.connect()
         self.logger.info("Deleteing user rating for whiskey %s for user %s", whiskeyId, userId)
-        query = peewee_models.UserRating.delete().where(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
-        query.execute()
+        
+        try:
+            with self.db.transaction():
+                query = peewee_models.UserRating.delete().where(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
+                query.execute()
+        except IntegrityError:
+            self.logger.error("Failed to delete rating by user %d for whiskey %d", userId, whiskeyId)
+            self.db.close
+            raise
+        
         self.db.close
 
     def clearUserRatingTable(self):
         self.db.connect()
         self.logger.info("Clearing user rating table")
         peewee_models.UserRating.drop_table(True)
-        self.db.create_tables([peewee_models.UserRating], safe=True)
+        #self.db.create_tables([peewee_models.UserRating], safe=True)
         self.db.close

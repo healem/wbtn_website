@@ -10,7 +10,7 @@ from social import users
 from social.social_types import SocialType
 
 class FBTest(unittest.TestCase):
-    configFile = "/home4/healem/keys/wbtn.cnf"
+    configFile = "/home/teamgoge/keys/wbtn.cnf"
     fb = None
     accessToken = None
     userAccessToken = None

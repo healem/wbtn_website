@@ -14,20 +14,25 @@ class DBTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         loginit.initTestLogging()
+        
+        '''Temp db instance to clear out any garbage'''
+        DBTest.d = datastore.DbManager(testMode=True)
+        DBTest.d.clearUserRatingTable()
+        DBTest.d.clearCalculatedScoreTable()
+        DBTest.d.clearBlogEntryTable()
+        DBTest.d.clearWhiskeyTable()
+        DBTest.d.clearUserTable()
+        '''Now create the instance that we will use for the rest of the test'''
         DBTest.dbm = datastore.DbManager(testMode=True)
-        DBTest.dbm.clearUserTable()
-        DBTest.dbm.clearWhiskeyTable()
-        DBTest.dbm.clearBlogEntryTable()
-        DBTest.dbm.clearCalculatedScoreTable()
-        DBTest.dbm.clearUserRatingTable()
 
     @classmethod
     def tearDownClass(cls):
-        DBTest.dbm.clearUserTable()
-        DBTest.dbm.clearWhiskeyTable()
-        DBTest.dbm.clearBlogEntryTable()
-        DBTest.dbm.clearCalculatedScoreTable()
-        DBTest.dbm.clearUserRatingTable()
+        pass
+        #DBTest.dbm.clearUserRatingTable()
+        #DBTest.dbm.clearCalculatedScoreTable()
+        #DBTest.dbm.clearBlogEntryTable()
+        #DBTest.dbm.clearWhiskeyTable()
+        #DBTest.dbm.clearUserTable()
 
     def test_init(self):
         for table in self.dbm.wbtnTables:
@@ -106,13 +111,11 @@ class DBTest(unittest.TestCase):
 
         '''Delete user by email'''
         self.dbm.deleteUserByEmail(te1)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getUserByEmail(email=te1)
+        self.assertIsNone(self.dbm.getUserByEmail(email=te1))
 
         '''Delete user by ID'''
         self.dbm.deleteUserById(eu.userId)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getUserById(eu.userId)
+        self.assertIsNone(self.dbm.getUserById(eu.userId))
 
     def test_addBlogWriterUser(self):
         testEmail = "bwtest@dmjkg.com"
@@ -311,60 +314,58 @@ class DBTest(unittest.TestCase):
         self.assertEqual(w1.name, w2.name)
         
         '''Whiskey does not exist'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getWhiskeyByName(name="doesnotexist")
+        self.assertIsNone(self.dbm.getWhiskeyByName(name="doesnotexist"))
 
         '''Delete Whiskey by name'''
         self.dbm.deleteWhiskeyByName(tname2)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getWhiskeyByName(name=tname2)
+        self.assertIsNone(self.dbm.getWhiskeyByName(name=tname2))
 
         '''Delete Whiskey by ID'''
         self.dbm.deleteWhiskeyById(w1.whiskeyId)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getWhiskeyById(w1.whiskeyId)
+        self.assertIsNone(self.dbm.getWhiskeyById(w1.whiskeyId))
             
     def test_addBlogEntry(self):
         tt1 = "Title 1"
         tt2 = "Title 2"
         ttext = "alsighiua alrhgl uasryt8 ag4rtl7awg tugabwrf7b 8w4b47abv a8ui lrbfausl fgaebrfgwtgf agerg"
-        tuserId = 1
         freezer = freeze_time("2012-01-14 12:00:01")
         freezer.start()
+        testEmail = "agkyrgtalb@jkblzdfg.com"
+        
+        '''Create user for testing'''
+        self.dbm.addNormalUser(email=testEmail)
+        tu = self.dbm.getUserByEmail(testEmail)
         
         '''Normal case'''
-        self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tuserId)
+        self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tu.userId)
         b = self.dbm.getBlogEntryByTitle(tt1)
         self.assertEqual(b.title, tt1)
         self.assertEqual(b.text, ttext)
-        self.assertEqual(b.userId, tuserId)
+        self.assertEqual(b.userId, tu.userId)
         self.assertEqual(b.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
         self.assertEqual(b.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
         
         '''Blog entry title taken taken'''
         with self.assertRaises(IntegrityError):
-            self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tuserId)
+            self.dbm.addBlogEntry(title=tt1, text=ttext, userId=tu.userId)
             
         '''Get Blog Entry by id'''
         b1 = self.dbm.getBlogEntryById(b.blogEntryId)
         self.assertEqual(b.title, b1.title)
         
         '''Blog entry does not exist'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getBlogEntryByTitle(title="doesnotexist")
+        self.assertIsNone(self.dbm.getBlogEntryByTitle(title="doesnotexist"))
 
         '''Delete blog entry by title'''
-        self.dbm.addBlogEntry(title=tt2, text=ttext, userId=tuserId)
+        self.dbm.addBlogEntry(title=tt2, text=ttext, userId=tu.userId)
         b2 = self.dbm.getBlogEntryByTitle(tt2)
         self.assertEqual(b2.title, tt2)
         self.dbm.deleteBlogEntryByTitle(tt2)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getBlogEntryByTitle(title=tt2)
+        self.assertIsNone(self.dbm.getBlogEntryByTitle(title=tt2))
 
         '''Delete blog entry by ID'''
         self.dbm.deleteBlogEntryById(b1.blogEntryId)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getBlogEntryById(b1.blogEntryId)
+        self.assertIsNone(self.dbm.getBlogEntryById(b1.blogEntryId))
             
     def test_addCalculatedScore(self):
         tname1 = "Test Whiskey 11"
@@ -411,17 +412,14 @@ class DBTest(unittest.TestCase):
         self.assertEqual(s1.score, score)
         
         '''Calculated score does not exist, by whiskeyId'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=999)
+        self.assertIsNone(self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=999))
             
         '''Calculated score does not exist, by whiskey name'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getCalculatedScoreByWhiskeyName(name="doesnotexist")
+        self.assertIsNone(self.dbm.getCalculatedScoreByWhiskeyName(name="doesnotexist"))
 
         '''Delete calculate score by whiskeyId'''
         self.dbm.deleteCalculatedScoreByWhiskeyId(w1.whiskeyId)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=w1.whiskeyId)
+        self.assertIsNone(self.dbm.getCalculatedScoreByWhiskeyId(whiskeyId=w1.whiskeyId))
             
     def test_addUserRating(self):
         ''' Test whiskey '''
@@ -508,13 +506,11 @@ class DBTest(unittest.TestCase):
             self.dbm.addUserRating(whiskeyId=w1.whiskeyId, userId=u1.userId, rating=trating, notes=tnotes)
             
         '''User rating does not exist, by whiskey id'''
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getUserRatingByWhiskeyId(w2.whiskeyId, u1.userId)
+        self.assertIsNone(self.dbm.getUserRatingByWhiskeyId(w2.whiskeyId, u1.userId))
 
         '''Delete user rating by whiskeyId'''
         self.dbm.deleteUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
-        with self.assertRaises(DoesNotExist):
-            self.dbm.getUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
+        self.assertIsNone(self.dbm.getUserRatingByWhiskeyId(w1.whiskeyId, u1.userId))
     
 
 # Necessary to be able to run the unit test

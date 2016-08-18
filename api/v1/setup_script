@@ -13,3 +13,5 @@ pip install rauth
 pip install simplejson
 pip install enum
 pip install flask-restful
+pip install cachetools
+pip install coverage

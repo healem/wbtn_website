@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#coverage run -m test.testdb
-#coverage report -m
-
-#echo ""
-#echo ""
-
-coverage run -m test.testfb
+coverage run --omit=/home/teamgoge/public_html/whiskey/api/lib/* -m test.testdb
 coverage report -m
+
+#echo ""
+#echo ""
+
+#coverage run -m --source .* test.testfb
+#coverage report -m
 
