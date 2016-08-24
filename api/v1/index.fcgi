@@ -1,4 +1,4 @@
-#!/home4/healem/public_html/whiskey/api/bin/python
+#!/home/teamgoge/public_html/whiskey/api/bin/python
 from flup.server.fcgi import WSGIServer
 from rest_server import app
 

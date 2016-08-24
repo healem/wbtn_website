@@ -1,4 +1,7 @@
-#!/home4/healem/public_html/whiskey/api/bin/python
+#!/home/teamgoge/public_html/whiskey/main/bin/python
+import sys
+import os
+#sys.path.insert(0, '/home/teamgoge/public_html/whiskey/main/lib/python2.7/site-packages')
 from flup.server.fcgi import WSGIServer
 from frontend import app
 

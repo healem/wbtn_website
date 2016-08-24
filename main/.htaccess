@@ -1,20 +1,22 @@
-#AddHandler fcgid-script .fcgi
+AddHandler fcgid-script .fcgi
 #DirectoryIndex index.fcgi
 
-<IfModule mod_fcgid.c>
-   AddHandler fcgid-script .fcgi
-   <Files ~ (\.fcgi)>
-       SetHandler fcgid-script
-       Options +FollowSymLinks +ExecCGI
-   </Files>
-</IfModule>
+# Prevent Apache from serving .htaccess files:
+#<FilesMatch "^\.htaccess">
+#    Order allow,deny
+#    Deny from all
+#</FilesMatch>
 
-<IfModule mod_rewrite.c>
-   Options +FollowSymlinks
-   RewriteEngine On
-   RewriteBase /main/
-   #RewriteRule ^index\.fcgi$ - [L]
-   RewriteCond %{REQUEST_FILENAME} !-f
-   #RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
-</IfModule>
+<Files index.fcgi>
+    SetHandler fcgid-script
+    Options +FollowSymLinks +ExecCGI
+</Files>
+
+#AcceptPathInfo On
+
+#Options +FollowSymLinks
+RewriteEngine On
+#RewriteBase /main/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+

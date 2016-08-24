@@ -24,31 +24,31 @@ def hello_world():
 ##################
 ## Authorization
 ##################
-class Users(Resource):
-    def __init__(self, err):
-        super(Users, self).__init__()
-        self.logClassName = '.'.join([__name__, self.__class__.__name__])
-        self.logger = logging.getLogger(self.logClassName)
-        self.cache = LRUCache(maxsize=2)
-        
-    def post(self):
-        try:
-            parse = reqparse.RequestParser()
-            parse.add_argument('provider', type = str, location = 'json')
-            parse.add_argument('token', type = str, location = 'json')
-            args = parser.parse_args()
-            
-            provider = args['provider']
-            token = args['token']
-            
-            auth = Social.get_provider(SocialType.provider)
-            
-            #see if user is in cache
-            #verify user
-            #cache token
-            #get email, make sure local user exists, if not - create
-            if auth.verify(token):
-                user = dbm.getUserByEmail
+# class Users(Resource):
+#     def __init__(self, err):
+#         super(Users, self).__init__()
+#         self.logClassName = '.'.join([__name__, self.__class__.__name__])
+#         self.logger = logging.getLogger(self.logClassName)
+#         self.cache = LRUCache(maxsize=2)
+#         
+#     def post(self):
+#         try:
+#             parse = reqparse.RequestParser()
+#             parse.add_argument('provider', type = str, location = 'json')
+#             parse.add_argument('token', type = str, location = 'json')
+#             args = parser.parse_args()
+#             
+#             provider = args['provider']
+#             token = args['token']
+#             
+#             auth = Social.get_provider(SocialType.provider)
+#             
+#             #see if user is in cache
+#             #verify user
+#             #cache token
+#             #get email, make sure local user exists, if not - create
+#             if auth.verify(token):
+#                 user = dbm.getUserByEmail
 
 
 # @app.route('/authorize/<provider>')
