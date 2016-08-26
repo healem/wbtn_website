@@ -1,5 +1,5 @@
-AddHandler fcgid-script .fcgi
-#DirectoryIndex index.fcgi
+#AddHandler fcgid-script .fcgi
+DirectoryIndex frontend.html
 
 # Prevent Apache from serving .htaccess files:
 #<FilesMatch "^\.htaccess">
@@ -7,16 +7,16 @@ AddHandler fcgid-script .fcgi
 #    Deny from all
 #</FilesMatch>
 
-<Files index.fcgi>
-    SetHandler fcgid-script
-    Options +FollowSymLinks +ExecCGI
-</Files>
+#<Files index.fcgi>
+#    SetHandler fcgid-script
+#    Options +FollowSymLinks +ExecCGI
+#</Files>
 
 #AcceptPathInfo On
 
 #Options +FollowSymLinks
 RewriteEngine On
-#RewriteBase /main/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+RewriteBase /main/
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
 
