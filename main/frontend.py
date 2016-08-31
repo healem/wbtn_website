@@ -6,16 +6,16 @@ from flask import Flask, jsonify, render_template
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-@app.route('/login/')
+@app.route('/login/', strict_slashes=False)
 def login():
     return render_template("login.html")
 
 @app.route('/')
-@app.route('/frontend/')
+@app.route('/frontend/', strict_slashes=False)
 def frontend():
     return render_template("frontend.html")
 
-@app.route('/minor/')
+@app.route('/minor/', strict_slashes=False)
 def minor():
     return render_template("minor.html")
 
