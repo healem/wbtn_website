@@ -1,4 +1,4 @@
-#!/home/teamgoge/public_html/whiskey/main/bin/python
+#!/home/bythenum/public_html/whiskey/main/bin/python
 import ConfigParser
 from utils import loginit
 from flask import Flask, jsonify, render_template

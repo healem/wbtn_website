@@ -1,4 +1,4 @@
-#!/home/teamgoge/public_html/whiskey/main/bin/python
+#!/home/bythenum/public_html/whiskey/main/bin/python
 
 from flup.server.fcgi import WSGIServer
 def app(environ, start_response):
