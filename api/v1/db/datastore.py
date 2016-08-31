@@ -9,8 +9,8 @@ import ConfigParser
 
 class DbManager(object):
     wbtnTables = [peewee_models.User, peewee_models.Whiskey, peewee_models.BlogEntry, peewee_models.CalculatedScore, peewee_models.UserRating]
-    configFile = "/home/teamgoge/keys/wbtn.cnf"
-    dbUser = "teamgoge_wbtn"
+    configFile = "/home/bythenum/keys/wbtn.cnf"
+    dbUser = "bythenum_wbtn"
 
     def __init__(self, testMode=False):
         self.logClassName = '.'.join([__name__, self.__class__.__name__])

@@ -12,3 +12,4 @@ pip install pycodestyle
 pip install rauth
 pip install simplejson
 pip install enum
+git remote set-url origin https://healem@github.com/healem/wbtn_website.git
