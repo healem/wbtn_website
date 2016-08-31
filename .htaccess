@@ -1,3 +1,4 @@
 Options -Indexes
 
 AddHandler fcgid-script .fcgi
+
