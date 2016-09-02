@@ -2,25 +2,24 @@
 import ConfigParser
 import logging
 from utils import loginit
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 loginit.initLogging()
 app = Flask(__name__)
 app.logger.setLevel("DEBUG")
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-@app.route('/main/login/', strict_slashes=True)
+@app.route('/login/', strict_slashes=False)
 def login():
     ''' Login page '''
     return render_template("login.html")
 
 @app.route('/')
-@app.route('/main/')
 def frontend():
     ''' Front landing page '''
     return render_template("frontend.html")
 
-@app.route('/main/minor/')
+@app.route('/minor/')
 def minor():
     ''' Minor '''
     return render_template("minor.html")
@@ -45,12 +44,12 @@ def add_header(r):
 
 @app.errorhandler(404)
 def not_found(error):
-    app.logger.error('Page not found: %s', (request.path))
+    app.logger.error('Page not found: %s', request.path)
     return render_template('common/404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    app.logger.error('Internal error: %s at path: %s', error, (request.path))
+    app.logger.error('Internal error: %s at path: %s', error, request.path)
     return render_template('common/500.html'), 500
 
 if __name__ == '__main__':
