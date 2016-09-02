@@ -1,23 +1,38 @@
 #!/home/bythenum/public_html/whiskey/main/bin/python
 import ConfigParser
+import logging
 from utils import loginit
 from flask import Flask, jsonify, render_template
 
+loginit.initLogging()
 app = Flask(__name__)
+app.logger.setLevel("DEBUG")
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-@app.route('/login/', strict_slashes=False)
+@app.route('/main/login/', strict_slashes=True)
 def login():
+    ''' Login page '''
     return render_template("login.html")
 
 @app.route('/')
-@app.route('/frontend/', strict_slashes=False)
+@app.route('/main/')
 def frontend():
+    ''' Front landing page '''
     return render_template("frontend.html")
 
-@app.route('/minor/', strict_slashes=False)
+@app.route('/main/minor/')
 def minor():
+    ''' Minor '''
     return render_template("minor.html")
+
+#@app.route('/main/help', methods = ['GET'])
+def print_help():
+    """Print available functions."""
+    func_list = {}
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint != 'static':
+            func_list[rule.rule] = app.view_functions[rule.endpoint].__doc__
+    return func_list
 
 # TODO - disable caching for development.  Change to real caching for production
 @app.after_request
@@ -28,32 +43,15 @@ def add_header(r):
     r.headers['Cache-Control'] = 'public, max-age=0'
     return r
 
-#@app.route('/authorize/<provider>')
-#def oauth_authorize(provider):
-#    oauth = Social.get_provider(provider)
-#    return oauth.authorize()
-
-#@app.route('/callback/<provider>')
-#def oauth_callback(provider):
-#    oauth = Social.get_provider(provider)
-#    socialId, email, firstName, lastName = oauth.callback()
-#    if email is None:
-#        return None
-#    user = dbm.getUserByEmail(email)
-    #if not user:
-    #    dbm.addNormalUser(email=testEmail, facebookId=socialId, firstName=firstName, lastName=lastName)
-    #    user = dbm.getUserByEmail(email)
-        
-#    return user
-
 @app.errorhandler(404)
 def not_found(error):
+    app.logger.error('Page not found: %s', (request.path))
     return render_template('common/404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
+    app.logger.error('Internal error: %s at path: %s', error, (request.path))
     return render_template('common/500.html'), 500
 
 if __name__ == '__main__':
-    loginit.initLogging()
     app.run(debug=False)

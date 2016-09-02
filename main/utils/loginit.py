@@ -19,7 +19,7 @@ LOGGING = {
             'backupCount': 5,
             'level':'DEBUG',
             'formatter': 'default',
-            'filename': '/home/bythenum/logs/wbtn/wbtn.log',
+            'filename': '/home/bythenum/logs/wbtn/wbtn-front.log',
             'encoding': 'utf-8',
         },
         'console': {
@@ -50,7 +50,7 @@ TEST_LOGGING = {
             'backupCount': 5,
             'level':'DEBUG',
             'formatter': 'default',
-            'filename': '/home/bythenum/logs/wbtn/wbtn-test.log',
+            'filename': '/home/bythenum/logs/wbtn/wbtn-front-test.log',
             'encoding': 'utf-8',
         },
         'console': {
