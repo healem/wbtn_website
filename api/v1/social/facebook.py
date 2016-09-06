@@ -13,6 +13,8 @@ import ConfigParser
 from users import TestUser
 from social_types import SocialType
 from interface import Social
+import hashlib
+import hmac
 
 class FacebookError(HTTPError):
     def __init__(self, err):
@@ -104,6 +106,19 @@ class Facebook(Social):
             me.get('email'),
             me.get('first_name'),
             me.get('last_name'))
+    
+    @translate_http_error
+    def getUserInfo(self, accessToken):
+        self.logger.debug("Getting user info")
+        resp = urlopen('{}/me?{}'.format(self.baseUrl, urlencode({
+            'fields': 'id,email,first_name,last_name',
+            'access_token': accessToken,
+            'appsecret_proof': self.genAppSecretProof(accessToken),
+        })))
+        
+        r = simplejson.loads(resp.read().decode())
+        self.logger.debug("Full response to get userInfo: %s", r)
+        return r
 
     ''' Verify a user access token
         
@@ -111,6 +126,7 @@ class Facebook(Social):
         
         :return: True if token is good
     '''
+    @translate_http_error
     def verify(self, accessToken):
         self.logger.debug("Verifying facebook token")
         resp = urlopen('{}/debug_token?{}'.format(self.baseUrl, urlencode({
@@ -271,6 +287,20 @@ class Facebook(Social):
             return True
         else:
             return False
+        
+    ''' Generate appsecret_proof for facebook
+    
+        :param accessToken: the user access token for the account we are trying to access
+        
+        :return: the appsecret_proof
+    '''
+    def genAppSecretProof(self, accessToken):
+        h = hmac.new (
+            self.appSecret.encode('utf-8'),
+            msg=accessToken.encode('utf-8'),
+            digestmod=hashlib.sha256
+        )
+        return h.hexdigest()
      
 ''' This is meant for testing use only! '''   
 class FacebookUser(object):

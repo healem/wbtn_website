@@ -5,13 +5,13 @@ pip install -Iv flup==1.0.3.dev-20110405
 pip install jsonify
 pip install Flask
 pip install peewee
-pip install PyMySQL
+pip install PyMySQL==0.6.6
 pip install -U mock
 pip install freezegun
 pip install pycodestyle
 pip install rauth
 pip install simplejson
 pip install enum
-pip install flask-restful
+pip install flask-restplus
 pip install cachetools
 pip install coverage

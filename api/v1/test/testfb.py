@@ -66,8 +66,9 @@ class FBTest(unittest.TestCase):
         
         # Needs up to date access token to work - token only lives for a few hours and must be gotten
         # manually from Facebook.
-    #def test_facebookAuth(self):
+    def test_facebookAuth(self):
         #self.assertTrue(FBTest.fb.verify(FBTest.userAccessToken))
+        self.assertIsNotNone(FBTest.fb.getUserInfo(FBTest.userAccessToken))
        
         
 # Necessary to be able to run the unit test
