@@ -1,4 +1,11 @@
+
+RewriteEngine on
 Options -Indexes
 
 AddHandler fcgid-script .fcgi
+
+# Force everything to https
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 
