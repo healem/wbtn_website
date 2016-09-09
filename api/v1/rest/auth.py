@@ -12,7 +12,7 @@ auth = api.model('Auth', {
     'provider': fields.Integer(required=True, description='The provider the token belongs to'),
 })
 
-userCache = TTLCache(maxsize=500, ttl=3600, missing=getUser)
+userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)
 dbm = datastore.DbManager(testMode=False)
 
 ''' Wrapper: check required token '''
@@ -76,52 +76,70 @@ def require_api_token(func):
 ##################
 def registerUser(token, provider, email):
     # Validate user is authenticated by social provider
+    socialUser = None
+    try:
+        socialUser = getSocialUser(token, provider)
+    except (NameError):
+        logger.warn("User authentication to social failed")
+        return restplus.abort(401, reason="AUTH_FAILED")
+    
     # Create local user account with provided email
+    if socialUser is None:
+        logger.warn("User authentication to social failed")
+        return restplus.abort(401, reason="AUTH_FAILED")
+    
+    userInfo = { 'id': socialUser['id'],
+                 'email': email }
+    createLocalUser(userInfo)
+    
     # Need to create secret key for signing the session with - store in config file
     # Create session
-    # Return session
+    loginUser(token, provider)
     
-def loginUser(token, provider):
-    auth = Social.get_provider(SocialType.provider)
-    if auth is None:
-        logger.warn("User authentication failed, no token in session - please login")
-        return restplus.abort(401, reason="UNSUPPORTED_PROVIDER")
-    
-    user = getUser(token, provider)
+def loginUser(token, provider):    
+    user = getSocialUser(token, provider)
     
     # Put it in the session
     session['api_session_token'] = token
     
     ## Return session
     
-def getUser(token, provider=None):
+def getUserWithAutoCreate(token, provider=None):
+    ## Verify the user is authenticated by social provider
+    if provider is None:
+        provider = SocialType.facebook
+    
+    localUser = None
+    socialUserInfo = getSocialUser(token, provider)
+    if 'email' in socialUserInfo:
+        localUser = getLocalUser(socialUserInfo['email'])
+        if localUser is None:
+            ## We don't have a local user - let's make one
+            createLocalUser(userInfo)
+            localUser = dbm.getUserByEmail(email)
+    else:
+        # facebook authentication successful, but no we don't have an email address
+        # unable to create local account
+        pass
+        
+    return localUser 
+    
+def getSocialUser(token, provider=None):
     ## Verify the user is authenticated by social provider
     auth = Social.get_provider(SocialType.provider)
     if auth is None:
-        # Force facebook, for now
-        auth = 1
         logger.warn("User authentication failed, no token in session - please login")
         return restplus.abort(401, reason="UNSUPPORTED_PROVIDER")
     
     if auth.verify(token):
-        ## Great!  Now lets see if they are registered with us
-        ## First get email from social provider
-        user = None
-        userInfo = auth.getUserInfo(token)
-        if 'email' in userInfo:
-            user = dbm.getUserByEmail(email)
-            if user is None:
-                ## We don't have a local user - let's make one
-                createLocalUser(userInfo)
-                user = dbm.getUserByEmail(email)
-        else:
-            # facebook authentication successful, but no we don't have an email address
-            # unable to create local account
-            pass
-        
-        return user
+        return auth.getUserInfo(token)
     else:
         raise NameError("User failed authentication")
+    
+def getLocalUser(email):
+    user = None
+    user = dbm.getUserByEmail(email)
+    return user
 
 def createLocalUser(userInfo):
     socialId, firstName, lastName = None
