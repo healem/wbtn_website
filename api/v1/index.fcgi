@@ -1,6 +1,9 @@
 #!/home/bythenum/public_html/whiskey/api/bin/python
 from flup.server.fcgi import WSGIServer
 from rest_server import app
+import sys
+
+sys.path.append("/home/bythenum/public_html/whiskey/api/v1")
 
 class ScriptNameStripper(object):
    def __init__(self, app):

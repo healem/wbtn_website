@@ -1,5 +1,13 @@
-#AddHandler fcgid-script .fcgi
-#DirectoryIndex index.fcgi
+
+# Prevent Apache from serving .htaccess files:
+<FilesMatch "^\.htaccess">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+Header set Pragma "no-cache"
+Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
 
 <IfModule mod_fcgid.c>
    AddHandler fcgid-script .fcgi
@@ -12,9 +20,13 @@
 <IfModule mod_rewrite.c>
    Options +FollowSymlinks
    RewriteEngine On
-   RewriteBase /api/v1/
-   #RewriteRule ^index\.fcgi$ - [L]
-   RewriteCond %{REQUEST_FILENAME} !-f
-   #RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+   
+    # Force to https
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Redirect everything to index.fcgi
+    RewriteBase /api/v1/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
 </IfModule>
