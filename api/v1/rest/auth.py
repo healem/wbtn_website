@@ -1,16 +1,27 @@
 #!../../bin/python
 import logging
-from flask import session
+from flask import session, Blueprint
 from flask_restplus import Resource, Namespace, fields, reqparse
 from cachetools import TTLCache
 
-logger = logging.getLogger(self.logClassName)
+logger = logging.getLogger(__name__)
 api = Namespace('auth', description='User authentication and authorization related operations')
 
-auth = api.model('Auth', {
+authRegister = api.model('Register', {
+    'token': fields.String(required=True, description='The user access token'),
+    'provider': fields.Integer(required=True, description='The provider the token belongs to'),
+    'email': fields.String(required=True, description='Email address of the user'),
+})
+
+authLogin = api.model('Login', {
     'token': fields.String(required=True, description='The user access token'),
     'provider': fields.Integer(required=True, description='The provider the token belongs to'),
 })
+
+parser = api.parser()
+parser.add_argument('token', type=str, required=True, help='The user access token', location='form')
+parser.add_argument('provider', type=int, required=True, help='The provider the token belongs to', location='form')
+parser.add_argument('email', type=str, required=False, help='Email address of the user', location='form')
 
 userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)
 dbm = datastore.DbManager(testMode=False)
@@ -42,39 +53,18 @@ def require_api_token(func):
 
     return check_token
 
-# @api.route('/')
-# class Auth(Resource):
-#     
-#     def __init__(self, err):
-#         super(Users, self).__init__()
-#         self.logClassName = '.'.join([__name__, self.__class__.__name__])
-#         self.logger = logging.getLogger(self.logClassName)
-#         self.provider = None      
-#         
-#     @api.expect(auth)
-#     @api.param('provider', 'the provider of the token', 'formData')
-#     @api.param('token', 'the access token from the provider', 'formData')
-#     def post(self):
-#         try:
-#             parse = reqparse.RequestParser()
-#             parse.add_argument('provider', type = str, location = 'json')
-#             parse.add_argument('token', type = str, location = 'json')
-#             args = parser.parse_args()
-#             
-#             self.provider = args['provider']
-#             token = args['token']
-#             
-#             user = userCache[token]
-#             
-#             return user, 200
-#         except NameError:
-#             self.logger.warn("User authentication failed")
-#             restplus.abort(401)
+@api.route('/register')
+class AuthRegister(Resource):
+    @api.marshal_list_with(authRegister)
+    def put():
+        args = parser.parse_args()
+        return registerUser(args['token'], args['provider'], args['email'])
 
-##################
-## Helper functions
-##################
 def registerUser(token, provider, email):
+    # Make sure email is populated
+    if email is None:
+        return restplus.abort(401, reason="NO_EMAIL")
+    
     # Validate user is authenticated by social provider
     socialUser = None
     try:
@@ -95,6 +85,13 @@ def registerUser(token, provider, email):
     # Need to create secret key for signing the session with - store in config file
     # Create session
     loginUser(token, provider)
+    
+@api.route('/login')
+def login():
+    @api.marshal_list_with(authLogin)
+    def post():
+        args = parser.parse_args()
+        return loginUser(args['token'], args['provider'])
     
 def loginUser(token, provider):    
     user = getSocialUser(token, provider)

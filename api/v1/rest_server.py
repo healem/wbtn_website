@@ -14,7 +14,13 @@ from rest.sample import api as sample_api
 loginit.initLogging()
 logger = logging.getLogger(__name__)
 
+configFile = "/home/bythenum/keys/wbtn.cnf"
+config = ConfigParser.ConfigParser()
+config.read(configFile)
+secret = config.get("auth", "api_secret")
+
 app = Flask(__name__)
+app.secret_key = secret
 blueprint = Blueprint('api', __name__)
 
 api = Api( blueprint,
