@@ -59,7 +59,7 @@ class DBTest(unittest.TestCase):
         self.assertFalse(eu.blogWriter)
         self.assertFalse(eu.collegeRater)
         self.assertFalse(eu.whiskeyAdmin)
-        self.assertIsNone(eu.facebookId)
+        self.assertIsNone(eu.socialId)
         self.assertIsNone(eu.firstName)
         self.assertIsNone(eu.lastName)
         self.assertIsNone(eu.middleInitial)
@@ -69,10 +69,10 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
 
         '''Normal case'''
-        self.dbm.addNormalUser(email=te1, facebookId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addNormalUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
         eu1 = self.dbm.getUserByEmail(te1)
         self.assertEqual(eu1.email, te1)
-        self.assertEqual(eu1.facebookId, testFBID)
+        self.assertEqual(eu1.socialId, testFBID)
         self.assertTrue(eu1.userRater)
         self.assertFalse(eu1.blogWriter)
         self.assertFalse(eu1.collegeRater)
@@ -93,7 +93,7 @@ class DBTest(unittest.TestCase):
         '''Add facebook id to existing user'''
         self.dbm.addFacebookAccountToUser(eu.userId, testFBID)
         eu3 = self.dbm.getUserById(eu.userId)
-        self.assertEqual(eu3.facebookId, testFBID)
+        self.assertEqual(eu3.socialId, testFBID)
         
         '''Add facebook account to non-existing user'''
         with self.assertRaises(DoesNotExist):
@@ -138,7 +138,7 @@ class DBTest(unittest.TestCase):
         self.assertTrue(eu.blogWriter)
         self.assertFalse(eu.collegeRater)
         self.assertFalse(eu.whiskeyAdmin)
-        self.assertIsNone(eu.facebookId)
+        self.assertIsNone(eu.socialId)
         self.assertIsNone(eu.firstName)
         self.assertIsNone(eu.lastName)
         self.assertIsNone(eu.middleInitial)
@@ -148,10 +148,10 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
 
         '''Normal case'''
-        self.dbm.addBlogWriterUser(email=te1, facebookId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addBlogWriterUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
         eu = self.dbm.getUserByEmail(te1)
         self.assertEqual(eu.email, te1)
-        self.assertEqual(eu.facebookId, testFBID)
+        self.assertEqual(eu.socialId, testFBID)
         self.assertTrue(eu.userRater)
         self.assertTrue(eu.blogWriter)
         self.assertFalse(eu.collegeRater)
@@ -189,7 +189,7 @@ class DBTest(unittest.TestCase):
         self.assertFalse(eu.blogWriter)
         self.assertTrue(eu.collegeRater)
         self.assertFalse(eu.whiskeyAdmin)
-        self.assertIsNone(eu.facebookId)
+        self.assertIsNone(eu.socialId)
         self.assertIsNone(eu.firstName)
         self.assertIsNone(eu.lastName)
         self.assertIsNone(eu.middleInitial)
@@ -199,10 +199,10 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
 
         '''Normal case'''
-        self.dbm.addCollegeRaterUser(email=te1, facebookId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addCollegeRaterUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
         eu = self.dbm.getUserByEmail(te1)
         self.assertEqual(eu.email, te1)
-        self.assertEqual(eu.facebookId, testFBID)
+        self.assertEqual(eu.socialId, testFBID)
         self.assertTrue(eu.userRater)
         self.assertFalse(eu.blogWriter)
         self.assertTrue(eu.collegeRater)
@@ -240,7 +240,7 @@ class DBTest(unittest.TestCase):
         self.assertTrue(eu.blogWriter)
         self.assertTrue(eu.collegeRater)
         self.assertTrue(eu.whiskeyAdmin)
-        self.assertIsNone(eu.facebookId)
+        self.assertIsNone(eu.socialId)
         self.assertIsNone(eu.firstName)
         self.assertIsNone(eu.lastName)
         self.assertIsNone(eu.middleInitial)
@@ -250,10 +250,10 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
 
         '''Normal case'''
-        self.dbm.addWhiskeyAdminUser(email=te1, facebookId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addWhiskeyAdminUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
         eu = self.dbm.getUserByEmail(te1)
         self.assertEqual(eu.email, te1)
-        self.assertEqual(eu.facebookId, testFBID)
+        self.assertEqual(eu.socialId, testFBID)
         self.assertTrue(eu.userRater)
         self.assertTrue(eu.blogWriter)
         self.assertTrue(eu.collegeRater)
@@ -468,8 +468,8 @@ class DBTest(unittest.TestCase):
         w2 = self.dbm.getWhiskeyByName(tname2)
         
         '''Create test users'''
-        self.dbm.addNormalUser(email=te1, facebookId=testFBID1, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
-        self.dbm.addNormalUser(email=te2, facebookId=testFBID2, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addNormalUser(email=te1, socialId=testFBID1, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
+        self.dbm.addNormalUser(email=te2, socialId=testFBID2, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
         u1 = self.dbm.getUserByEmail(te1)
         u2 = self.dbm.getUserByEmail(te2)
         

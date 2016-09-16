@@ -9,7 +9,7 @@ from utils import loginit
 from flask import Flask, Blueprint, jsonify, url_for
 from flask_restplus import Api, apidoc
 from rest.sample import api as sample_api
-#from rest import api
+from rest.auth import api as auth_api
 
 loginit.initLogging()
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 configFile = "/home/bythenum/keys/wbtn.cnf"
 config = ConfigParser.ConfigParser()
 config.read(configFile)
-secret = config.get("auth", "api_secret")
+secret = config.get("app", "api_secret")
 
 app = Flask(__name__)
 app.secret_key = secret
@@ -31,6 +31,7 @@ api = Api( blueprint,
 )
 
 api.add_namespace(sample_api)
+api.add_namespace(auth_api)
 
 app.register_blueprint(blueprint)
 

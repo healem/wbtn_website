@@ -128,14 +128,14 @@ class Facebook(Social):
     '''
     @translate_http_error
     def verify(self, accessToken):
-        self.logger.debug("Verifying facebook token")
+        self.logger.info("Verifying facebook token")
         resp = urlopen('{}/debug_token?{}'.format(self.baseUrl, urlencode({
             'input_token': accessToken,
             'access_token': self.getAppAccessToken(),
         })))
         
         r = simplejson.loads(resp.read().decode())['data']
-        if r['app_id'] == self.appId and r['is_valid']  == 'true':
+        if r['app_id'] == self.appId and r['is_valid']  == True:
             return True
         else:
             self.logger.error("Facebook token verify failed: expected %s and got %s: is_valid was %s", self.appId, r['app_id'], r['is_valid'])
