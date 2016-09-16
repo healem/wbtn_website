@@ -140,7 +140,7 @@ class DbManager(object):
         wbtnUsers = []
         self.db.connect()
         try:
-            users = peewee_models.User.get(peewee_models.User.socialId == socialId)
+            users = peewee_models.User.select().where(peewee_models.User.socialId == socialId)
             for user in users:
                 wbtnUser = models.User(userId=user.id, email=user.email, socialId=user.socialId, firstName=user.firstName, middleInitial=user.middleInitial, lastName=user.lastName, suffix=user.suffix, icon=user.icon, userRater=user.userRater, blogWriter=user.blogWriter, collegeRater=user.collegeRater, whiskeyAdmin=user.whiskeyAdmin, createdTime=user.createdTime, lastUpdatedTime=user.lastUpdatedTime)
                 wbtnUsers.append(wbtnUser)

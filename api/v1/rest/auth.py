@@ -22,13 +22,13 @@ authLogin = api.model('Login', {
 })
 
 regParser = api.parser()
-regParser.add_argument('token', type=str, required=True, help='The user access token')#, location='json')
-regParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')#, location='json')
-regParser.add_argument('email', type=str, required=True, help='Email address of the user')#, location='json')
+regParser.add_argument('token', type=str, required=True, help='The user access token')
+regParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
+regParser.add_argument('email', type=str, required=True, help='Email address of the user')
 
 loginParser = api.parser()
-loginParser.add_argument('token', type=str, required=True, help='The user access token', location='json')
-loginParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to', location='json')
+loginParser.add_argument('token', type=str, required=True, help='The user access token')
+loginParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
 
 dbm = datastore.DbManager(testMode=False)
 
@@ -83,7 +83,7 @@ def registerUser(token, provider, email):
     # Verify there is no email associated with this social id
     # Protection from DOS based on valid facebook user registering many emails (creating many users)
     result = socialIdNotAssociatedWithEmail(socialUser['id'])
-    if not result:
+    if result != True:
         return abort(401, reason=result)
     
     # Create local user account with provided email
@@ -107,8 +107,14 @@ class AuthLogin(Resource):
         args = loginParser.parse_args()
         return loginUser(args['token'], args['provider'])
     
-def loginUser(token, provider):    
-    user = getSocialUser(token, provider)
+def loginUser(token, provider):
+    # Validate user is authenticated by social provider
+    socialUser = None
+    try:
+        socialUser = getSocialUser(token, provider)
+    except (NameError):
+        logger.warn("User authentication to social failed")
+        return abort(401, reason="AUTH_FAILED")
     
     # Put it in the session
     session['api_session_token'] = token
