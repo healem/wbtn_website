@@ -6,6 +6,7 @@ from cachetools import TTLCache
 from db import datastore
 from social.interface import Social
 from social.factory import SocialFactory
+from validate_email import validate_email
 
 logger = logging.getLogger(__name__)
 api = Namespace('auth', description='User authentication and authorization related operations')
@@ -72,6 +73,9 @@ def registerUser(token, provider, email):
     if email is None:
         return abort(401, reason="NO_EMAIL")
     
+    if validEmail(email) != True:
+        return abort(401, reason="INVALID_EMAIL")
+    
     # Validate user is authenticated by social provider
     socialUser = None
     try:
@@ -98,6 +102,10 @@ def registerUser(token, provider, email):
     # Need to create secret key for signing the session with - store in config file
     # Create session
     return loginUser(token, provider)
+
+def validEmail(email):
+    return validate_email(email)
+    
     
 @api.route('/login')
 @api.expect(loginParser)

@@ -26,7 +26,6 @@ class AuthTest(unittest.TestCase):
         
         # DB setup
         AuthTest.dbm = datastore.DbManager(testMode=False)
-        
 
     @classmethod
     def tearDownClass(cls):
@@ -57,6 +56,19 @@ class AuthTest(unittest.TestCase):
         AuthTest.logger.debug("Register headers: %s and request headers: %s", resp3.headers, resp3.request.headers)
         self.assertEqual(resp.status_code, 200)
         
+        # Now register with no email
+        data3 = { 'token': AuthTest.userAccessToken, 'provider': AuthTest.provider, 'email': None}
+        resp4 = requests.post("{}/register".format(AuthTest.baseUrl), data=data3)
+        AuthTest.logger.debug("Register Response code: %s and response: %s ", resp4.status_code, resp4.content)
+        self.assertEqual(resp4.status_code, 400)
+        
+        # Register with invalid email
+        data4 = { 'token': AuthTest.userAccessToken, 'provider': AuthTest.provider, 'email': "sdfhrt"}
+        resp5 = requests.post("{}/register".format(AuthTest.baseUrl), data=data4)
+        AuthTest.logger.debug("Register Response code: %s and response: %s ", resp5.status_code, resp5.content)
+        self.assertEqual(resp5.status_code, 401)
+        self.assertEqual(resp5.json()['reason'], 'INVALID_EMAIL')
+        
         # Clean up test user
         self.dbm.deleteUserByEmail(AuthTest.email)
         
@@ -64,6 +76,4 @@ class AuthTest(unittest.TestCase):
 # Necessary to be able to run the unit test
 if (__name__ == '__main__'):
     unittest.main()
-    #logging.basicConfig( stream=sys.stderr )
-    #logging.getLogger( "SomeTest.testSomething" ).setLevel( logging.DEBUG )
         
