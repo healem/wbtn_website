@@ -6,10 +6,7 @@ from db import datastore
 import logging
 from utils import loginit
 
-from flask import Flask, Blueprint, jsonify, url_for
-from flask_restplus import Api, apidoc
-from rest.sample import api as sample_api
-from rest.auth import api as auth_api
+from flask import Flask, Blueprint, jsonify, url_for, session
 
 loginit.initLogging()
 logger = logging.getLogger(__name__)
@@ -21,17 +18,18 @@ secret = config.get("app", "api_secret")
 
 app = Flask(__name__)
 app.secret_key = secret
-blueprint = Blueprint('api', __name__)
 
-api = Api( blueprint,
-    title='WBTN REST',
-    version='1.0',
-    description='HTTP REST interface to WBTN backend',
-    doc=False,
-)
+from rest.restplus import api
+from rest.sample import api as sample_api
+from rest.auth import api as auth_api
+from rest.user import api as user_api
+from rest import decorators
+
+blueprint = Blueprint('api', __name__)
 
 api.add_namespace(sample_api)
 api.add_namespace(auth_api)
+api.add_namespace(user_api)
 
 app.register_blueprint(blueprint)
 
@@ -47,4 +45,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-

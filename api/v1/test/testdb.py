@@ -85,6 +85,23 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
         self.assertEqual(eu1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
         
+        '''Set admin'''
+        self.dbm.setAdmin(te1, True)
+        # refresh view of user
+        eu10 = self.dbm.getUserByEmail(te1)
+        self.assertTrue(eu10.whiskeyAdmin)
+        
+        '''Set blogger'''
+        self.dbm.setBlogWriter(te1, True)
+        # refresh view of user
+        eu11 = self.dbm.getUserByEmail(te1)
+        self.assertTrue(eu11.blogWriter)
+        
+        '''Set admin'''
+        self.dbm.setCollegeRater(te1, True)
+        # refresh view of user
+        eu12 = self.dbm.getUserByEmail(te1)
+        self.assertTrue(eu12.collegeRater)
 
         '''Get user by ID'''
         eu2 = self.dbm.getUserById(eu1.userId)

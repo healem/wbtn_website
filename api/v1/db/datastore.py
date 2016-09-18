@@ -108,6 +108,31 @@ class DbManager(object):
         elif rowsUpdated > 1:
             self.logger.error("%d users found for id %s", rowsUpdated, userId)
             raise IntegrityError("%d rows found with userId %s", rowsUpdated, userId)
+        
+    def setAdmin(self, email, isAdmin):
+        ''' Give the user admin permissions '''
+        self.logger.info("Setting user %s admin permissions to %s", email, isAdmin)
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(whiskeyAdmin=isAdmin).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
+    def setBlogWriter(self, email, isBlogWriter):
+        ''' Give the user blog writing permissions '''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(blogWriter=isBlogWriter).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
+    def setCollegeRater(self, email, isCollegeRater):
+        ''' Give the user college rating permissions '''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(collegeRater=isCollegeRater).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
 
     def getUserByEmail(self, email):
         '''Lookup a user by email address'''

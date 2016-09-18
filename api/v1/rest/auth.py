@@ -2,63 +2,36 @@
 import logging
 from flask import session, Blueprint
 from flask_restplus import Resource, Namespace, fields, reqparse, abort
-from cachetools import TTLCache
+from restplus import api
 from db import datastore
 from social.interface import Social
 from social.factory import SocialFactory
 from validate_email import validate_email
 
 logger = logging.getLogger(__name__)
-api = Namespace('auth', description='User authentication and authorization related operations')
+authApi = Namespace('auth', description='User authentication and authorization related operations')
 
-authRegister = api.model('Register', {
+authRegister = authApi.model('Register', {
     'token': fields.String(required=True, description='The user access token'),
     'provider': fields.Integer(required=True, description='The provider the token belongs to'),
     'email': fields.String(required=True, description='Email address of the user'),
 })
 
-authLogin = api.model('Login', {
+authLogin = authApi.model('Login', {
     'token': fields.String(required=True, description='The user access token'),
     'provider': fields.Integer(required=True, description='The provider the token belongs to'),
 })
 
-regParser = api.parser()
+regParser = aauthApi.parser()
 regParser.add_argument('token', type=str, required=True, help='The user access token')
 regParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
 regParser.add_argument('email', type=str, required=True, help='Email address of the user')
 
-loginParser = api.parser()
+loginParser = authApi.parser()
 loginParser.add_argument('token', type=str, required=True, help='The user access token')
 loginParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
 
 dbm = datastore.DbManager(testMode=False)
-
-''' Wrapper: check required token '''
-def require_api_token(func):
-    @wraps(func)
-    def check_token(*args, **kwargs):
-        # Check to see if it's in their session
-        if 'api_session_token' not in session:
-            # If it isn't return our access denied message (you can also return a redirect or render_template)
-            logger.warn("User authentication failed, no token in session - please login")
-            return abort(401, reason="NO_TOKEN")
-        else:
-            # validate token
-            try:
-                user = userCache[token]
-            except (NameError):
-                logger.warn("User authentication to social failed")
-                return abort(401, reason="AUTH_FAILED")
-            
-            if user is None:
-                # Validated by oauth to social, but no email, so we can't auto-register - need to register
-                logger.info("User authenticated to social but does not have email - manual registration needed")
-                return abort(401, reason="NO_EMAIL")
-
-        # Auth successful - send them onward
-        return func(*args, **kwargs)
-
-    return check_token
 
 @api.route('/register')
 @api.expect(regParser)
@@ -105,7 +78,6 @@ def registerUser(token, provider, email):
 
 def validEmail(email):
     return validate_email(email)
-    
     
 @api.route('/login')
 @api.expect(loginParser)
@@ -199,5 +171,3 @@ def createLocalUser(userInfo):
     if 'last_name' in userInfo:
         lastName = userInfo['last_name']
     dbm.addNormalUser(email=userInfo['email'], firstName=firstName, lastName=lastName, socialId=socialId)
-    
-userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)

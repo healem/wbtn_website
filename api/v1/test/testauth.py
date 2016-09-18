@@ -4,7 +4,6 @@ import logging
 from utils import loginit
 from db import datastore
 import requests
-from cookielib import CookieJar
 import simplejson
 import ConfigParser
     

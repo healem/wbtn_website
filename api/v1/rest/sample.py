@@ -1,11 +1,12 @@
 from flask_restplus import Namespace, Resource, fields
 from flask import url_for
+from restplus import api
 import logging
 
-api = Namespace('sample', description='Sample')
+sampleApi = Namespace('sample', description='Sample')
 logger = logging.getLogger(__name__)
 
-sample = api.model('Sample', {
+sample = sampleApi.model('Sample', {
     'id': fields.String(required=True, description='The sample identifier'),
     'name': fields.String(required=True, description='The sample name'),
 })
