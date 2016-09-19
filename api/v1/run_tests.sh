@@ -9,5 +9,8 @@
 #coverage run -m --omit=/home/bythenum/public_html/whiskey/api/lib/* test.testfb
 #coverage report -m
 
-coverage run -m --omit=/home/bythenum/public_html/whiskey/api/lib/* test.testauth
+#coverage run -m --omit=/home/bythenum/public_html/whiskey/api/lib/* test.testauth
+#coverage report -m
+
+coverage run -m --omit=/home/bythenum/public_html/whiskey/api/lib/* test.testuser
 coverage report -m

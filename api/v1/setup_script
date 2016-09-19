@@ -13,6 +13,6 @@ pip install rauth
 pip install simplejson
 pip install enum
 pip install flask-restplus
-pip install cachetools
+pip install expiringdict
 pip install coverage
 pip install validate_email

@@ -3,7 +3,7 @@ import logging
 from flask_restplus import Resource, Namespace, fields, reqparse, abort
 from db import datastore
 from restplus import api
-from . import decorators
+from .decorators import require_token, require_admin
 
 logger = logging.getLogger(__name__)
 userApi = Namespace('user', description='User related operations')
@@ -28,8 +28,8 @@ getParser.add_argument('email', type=str, required=False, help='The user email a
 
 @api.route('/user')
 class WBTNUser(Resource):
-    @api.require_token
-    @api.require_admin
+    @require_token
+    @require_admin
     @api.expect(getParser)
     def get(self):
         args = getParser.parse_args()

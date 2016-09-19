@@ -10,7 +10,7 @@ import ConfigParser
 class AuthTest(unittest.TestCase):
     
     configFile = "/home/bythenum/keys/wbtn.cnf"
-    baseUrl = "https://whiskey.bythenums.com/api/v1/auth"
+    baseUrl = "https://whiskey.bythenums.com/api/v1"
     provider = 1
     email = 'bqcrpft_romanstein_1473890065@tfbnw.net'
     dbm = None
@@ -51,8 +51,8 @@ class AuthTest(unittest.TestCase):
         # Test login
         data2 = { 'token': AuthTest.userAccessToken, 'provider': AuthTest.provider}
         resp3 = requests.post("{}/login".format(AuthTest.baseUrl), data=data2)
-        AuthTest.logger.debug("Register Response code: %s and response: %s ", resp3.status_code, resp3.content)
-        AuthTest.logger.debug("Register headers: %s and request headers: %s", resp3.headers, resp3.request.headers)
+        AuthTest.logger.debug("Login Response code: %s and response: %s ", resp3.status_code, resp3.content)
+        AuthTest.logger.debug("Login headers: %s and request headers: %s", resp3.headers, resp3.request.headers)
         self.assertEqual(resp.status_code, 200)
         
         # Now register with no email

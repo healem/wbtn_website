@@ -2,44 +2,17 @@
 import logging
 from flask import session, Blueprint
 from flask_restplus import Resource, Namespace, fields, reqparse, abort
-from restplus import api
 from db import datastore
 from social.interface import Social
 from social.factory import SocialFactory
+from social.social_types import SocialType
 from validate_email import validate_email
+#from utils import loginit
 
+#loginit.initLogging()
 logger = logging.getLogger(__name__)
-authApi = Namespace('auth', description='User authentication and authorization related operations')
-
-authRegister = authApi.model('Register', {
-    'token': fields.String(required=True, description='The user access token'),
-    'provider': fields.Integer(required=True, description='The provider the token belongs to'),
-    'email': fields.String(required=True, description='Email address of the user'),
-})
-
-authLogin = authApi.model('Login', {
-    'token': fields.String(required=True, description='The user access token'),
-    'provider': fields.Integer(required=True, description='The provider the token belongs to'),
-})
-
-regParser = aauthApi.parser()
-regParser.add_argument('token', type=str, required=True, help='The user access token')
-regParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
-regParser.add_argument('email', type=str, required=True, help='Email address of the user')
-
-loginParser = authApi.parser()
-loginParser.add_argument('token', type=str, required=True, help='The user access token')
-loginParser.add_argument('provider', type=int, required=True, help='The provider the token belongs to')
 
 dbm = datastore.DbManager(testMode=False)
-
-@api.route('/register')
-@api.expect(regParser)
-class AuthRegister(Resource):
-    @api.marshal_list_with(authRegister)
-    def post(self):
-        args = regParser.parse_args()
-        return registerUser(args['token'], args['provider'], args['email'])
 
 def registerUser(token, provider, email):
     # Make sure email is populated
@@ -79,14 +52,6 @@ def registerUser(token, provider, email):
 def validEmail(email):
     return validate_email(email)
     
-@api.route('/login')
-@api.expect(loginParser)
-class AuthLogin(Resource):
-    @api.marshal_list_with(authLogin)
-    def post(self):
-        args = loginParser.parse_args()
-        return loginUser(args['token'], args['provider'])
-    
 def loginUser(token, provider):
     # Validate user is authenticated by social provider
     socialUser = None
@@ -104,21 +69,25 @@ def loginUser(token, provider):
     
 def getUserWithAutoCreate(token, provider=None):
     ## Verify the user is authenticated by social provider
+    logger.info("Entered getUserWithAutoCreate")
     if provider is None:
         provider = SocialType.facebook
     
     localUser = None
+    logger.info("Getting social user")
     socialUserInfo = getSocialUser(token, provider)
     if 'email' in socialUserInfo:
+        logger.debug("Checking user with email %s", socialUserInfo['email'])
         localUser = getLocalUser(socialUserInfo['email'])
         if localUser is None:
             ## We don't have a local user - let's make one
+            logger.debug("Creating local user for %s", socialUserInfo['email'])
             createLocalUser(userInfo)
             localUser = dbm.getUserByEmail(email)
     else:
         # facebook authentication successful, but no we don't have an email address
         # unable to create local account
-        pass
+        logger.warn("Unable to create local user for %s", socialUserInfo['email'])
         
     return localUser 
     

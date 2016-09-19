@@ -1,8 +1,12 @@
 #!../../bin/python
 import logging
 from functools import wraps
-from cachetools import TTLCache
-from .auth import getUserWithAutoCreate
+from expiringdict import ExpiringDict
+from auth.helpers import getUserWithAutoCreate
+from flask import session
+from flask_restplus import abort
+
+logger = logging.getLogger(__name__)
 
 ''' Wrapper: check required token '''
 def require_token(func):
@@ -52,22 +56,30 @@ def getUserFromSession(session):
     else:
         # validate token
         try:
-            user = userCache[session['api_session_token']]
+            #user = userCache[session['api_session_token']]
+            user = userCache.get(session['api_session_token'])
+            if user is None:
+                logger.debug("User not in cache - fetching from db")
+                user = getUserWithAutoCreate(session['api_session_token'])
+                # Got the user, now put it in cache
+                userCache[session['api_session_token']] = user
+                
         except (NameError):
             logger.warn("User authentication to social failed")
             return abort(401, reason="AUTH_FAILED")
         
         if user is None:
             # Validated by oauth to social, but no email, so we can't auto-register - need to register
-            logger.info("User authenticated to social but does not have email - manual registration needed")
+            logger.debug("User authenticated to social but does not have email - manual registration needed")
             return abort(401, reason="NO_EMAIL")
         
     return user
 
 def checkPermission(user, permission):
-    if user[permission] == True:
+    if getattr(user,permission) == True:
         return True
     else:
         return abort(401, reason="NO_PERMISSION")
     
-userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)
+#userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)
+userCache = ExpiringDict(max_len=500, max_age_seconds=3600)

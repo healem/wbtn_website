@@ -19,19 +19,17 @@ secret = config.get("app", "api_secret")
 app = Flask(__name__)
 app.secret_key = secret
 
-from rest.restplus import api
-from rest.sample import api as sample_api
-from rest.auth import api as auth_api
-from rest.user import api as user_api
+from rest.restplus import api, apiBlueprint
+from rest.sample import sampleApi
+from rest.auth.routes import authApi
+from rest.user import userApi
 from rest import decorators
 
-blueprint = Blueprint('api', __name__)
+api.add_namespace(sampleApi)
+api.add_namespace(authApi)
+api.add_namespace(userApi)
 
-api.add_namespace(sample_api)
-api.add_namespace(auth_api)
-api.add_namespace(user_api)
-
-app.register_blueprint(blueprint)
+app.register_blueprint(apiBlueprint)
 
 #app.logger.info("url_map before: %s", app.url_map)
 
