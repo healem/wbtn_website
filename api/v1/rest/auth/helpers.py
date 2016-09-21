@@ -1,7 +1,7 @@
-#!../../bin/python
+#!../../../bin/python
 import logging
-from flask import session, Blueprint
-from flask_restplus import Resource, Namespace, fields, reqparse, abort
+from flask import session
+from flask_restplus import abort
 from db import datastore
 from social.interface import Social
 from social.factory import SocialFactory
@@ -69,12 +69,11 @@ def loginUser(token, provider):
     
 def getUserWithAutoCreate(token, provider=None):
     ## Verify the user is authenticated by social provider
-    logger.info("Entered getUserWithAutoCreate")
     if provider is None:
         provider = SocialType.facebook
     
     localUser = None
-    logger.info("Getting social user")
+    logger.debug("Getting social user")
     socialUserInfo = getSocialUser(token, provider)
     if 'email' in socialUserInfo:
         logger.debug("Checking user with email %s", socialUserInfo['email'])
@@ -93,21 +92,20 @@ def getUserWithAutoCreate(token, provider=None):
     
 def getSocialUser(token, provider=None):
     ## Verify the user is authenticated by social provider
-    logger.info("Getting provider: %d", provider)
+    logger.debug("Getting provider: %d", provider)
     try:
         auth = SocialFactory.get_provider(provider)
     except NameError as e:
         logger.error("Got exception: %s", e)
         
-    logger.info("Got auth: %s ", auth)
     if auth is None:
         logger.warn("User authentication failed, social provider not known. - please login using social media account")
         return abort(401, reason="UNSUPPORTED_PROVIDER")
     
     if auth.verify(token):
-        logger.info("User token verified")
+        logger.debug("User token verified")
         info = auth.getUserInfo(token)
-        logger.info("Got user info: %s", info)
+        logger.debug("Got user info: %s", info)
         return info
     else:
         logger.error("User token failed verification")

@@ -1,4 +1,5 @@
 #!../../bin/python
+from datetime import datetime
 
 class User(object):
 
@@ -10,8 +11,8 @@ class User(object):
         self.suffix = suffix
         self.email = email
         self.socialId = socialId
-        self.createdTime = createdTime
-        self.lastUpdatedTime = lastUpdatedTime
+        self.createdTime = createdTime.isoformat()
+        self.lastUpdatedTime = lastUpdatedTime.isoformat()
         self.icon = icon
         self.userRater = userRater
         self.blogWriter = blogWriter
@@ -28,8 +29,8 @@ class Whiskey(object):
         self.style = style
         self.age = age
         self.icon = icon
-        self.createdTime = createdTime
-        self.lastUpdatedTime = lastUpdatedTime
+        self.createdTime = createdTime.isoformat()
+        self.lastUpdatedTime = lastUpdatedTime.isoformat()
 
 class BlogEntry(object):
 
@@ -38,8 +39,8 @@ class BlogEntry(object):
         self.userId = userId
         self.title = title
         self.text = text
-        self.createdTime = createdTime
-        self.lastUpdatedTime = lastUpdatedTime
+        self.createdTime = createdTime.isoformat()
+        self.lastUpdatedTime = lastUpdatedTime.isoformat()
 
 class UserRating(object):
 
@@ -47,8 +48,8 @@ class UserRating(object):
         self.whiskeyId = whiskeyId
         self.userId = userId
         self.rating = rating
-        self.createdTime = createdTime
-        self.lastUpdatedTime = lastUpdatedTime
+        self.createdTime = createdTime.isoformat()
+        self.lastUpdatedTime = lastUpdatedTime.isoformat()
         self.notes = notes
         self.sweet = sweet
         self.sour = sour
@@ -72,5 +73,5 @@ class CalculatedScore(object):
         self.drinkability = drinkability
         self.complexity = complexity
         self.mouthfeel = mouthfeel
-        self.createdTime = createdTime
-        self.lastUpdatedTime = lastUpdatedTime
+        self.createdTime = createdTime.isoformat()
+        self.lastUpdatedTime = lastUpdatedTime.isoformat()

@@ -41,15 +41,19 @@ class DBTest(unittest.TestCase):
     def test_addNormalUser(self):
         testEmail = "test@dmjkg.com"
         testFirst = "sfdgjnk"
+        testFirst1 = "djft"
         testMI = "SIOH"
         testLast = "sdharhIoiu"
+        testLast1 = "jrdthhfgx"
         testSuffix = "sdfhas"
         testIcon = bytearray("ashdkgfualesbsbvlansufbalsug")
         testFBID = "438q5697-816058-9y304587-039485"
+        testFBID1 = "lishrtla8e4ht a.ca;veyeBAE%bYEV%yAernb6ERyr"
         freezer = freeze_time("2012-01-14 12:00:01")
         freezer.start()
 
         te1 = "testdsjkhg@jhglsg.asfg.edu"
+        te12 = "hjgbdkfjg@kjhxdg.xdht.com"
 
         '''Basic case'''
         self.dbm.addNormalUser(email=testEmail)
@@ -65,8 +69,8 @@ class DBTest(unittest.TestCase):
         self.assertIsNone(eu.middleInitial)
         self.assertIsNone(eu.suffix)
         self.assertIsNone(eu.icon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Normal case'''
         self.dbm.addNormalUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
@@ -82,8 +86,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu1.middleInitial, testMI)
         self.assertEqual(eu1.suffix, testSuffix)
         self.assertEqual(eu1.icon, testIcon)
-        self.assertEqual(eu1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Set admin'''
         self.dbm.setAdmin(te1, True)
@@ -97,11 +101,37 @@ class DBTest(unittest.TestCase):
         eu11 = self.dbm.getUserByEmail(te1)
         self.assertTrue(eu11.blogWriter)
         
-        '''Set admin'''
+        '''Set college rater'''
         self.dbm.setCollegeRater(te1, True)
         # refresh view of user
         eu12 = self.dbm.getUserByEmail(te1)
         self.assertTrue(eu12.collegeRater)
+        
+        '''Set firstname'''
+        self.dbm.setFirstName(te1, testFirst1)
+        # refresh view of user
+        eu13 = self.dbm.getUserByEmail(te1)
+        self.assertEqual(eu13.firstName, testFirst1)
+        
+        '''Set lastname'''
+        self.dbm.setLastName(te1, testLast1)
+        # refresh view of user
+        eu14 = self.dbm.getUserByEmail(te1)
+        self.assertEqual(eu14.lastName, testLast1)
+        
+        '''Set socialId'''
+        self.dbm.setSocialId(te1, testFBID1)
+        # refresh view of user
+        eu15 = self.dbm.getUserByEmail(te1)
+        self.assertEqual(eu15.socialId, testFBID1)
+        
+        '''Set email'''
+        self.dbm.setEmail(te1, te12)
+        # refresh view of user
+        eu16 = self.dbm.getUserByEmail(te12)
+        self.assertEqual(eu16.email, te12)
+        '''Set email back to previous'''
+        self.dbm.setEmail(te12, te1)
 
         '''Get user by ID'''
         eu2 = self.dbm.getUserById(eu1.userId)
@@ -161,8 +191,8 @@ class DBTest(unittest.TestCase):
         self.assertIsNone(eu.middleInitial)
         self.assertIsNone(eu.suffix)
         self.assertIsNone(eu.icon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Normal case'''
         self.dbm.addBlogWriterUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
@@ -178,8 +208,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.middleInitial, testMI)
         self.assertEqual(eu.suffix, testSuffix)
         self.assertEqual(eu.icon, testIcon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
@@ -212,8 +242,8 @@ class DBTest(unittest.TestCase):
         self.assertIsNone(eu.middleInitial)
         self.assertIsNone(eu.suffix)
         self.assertIsNone(eu.icon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Normal case'''
         self.dbm.addCollegeRaterUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
@@ -229,8 +259,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.middleInitial, testMI)
         self.assertEqual(eu.suffix, testSuffix)
         self.assertEqual(eu.icon, testIcon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
@@ -263,8 +293,8 @@ class DBTest(unittest.TestCase):
         self.assertIsNone(eu.middleInitial)
         self.assertIsNone(eu.suffix)
         self.assertIsNone(eu.icon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Normal case'''
         self.dbm.addWhiskeyAdminUser(email=te1, socialId=testFBID, firstName=testFirst, middleInitial=testMI, lastName=testLast, suffix=testSuffix, icon=testIcon)
@@ -280,8 +310,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(eu.middleInitial, testMI)
         self.assertEqual(eu.suffix, testSuffix)
         self.assertEqual(eu.icon, testIcon)
-        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(eu.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(eu.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
 
         '''Email address taken'''
         with self.assertRaises(IntegrityError):
@@ -307,8 +337,8 @@ class DBTest(unittest.TestCase):
         self.assertIsNone(w.age)
         self.assertIsNone(w.icon)
         self.assertIsNone(w.style)
-        self.assertEqual(w.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(w.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(w.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(w.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Normal case'''
         self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
@@ -319,8 +349,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(w1.age, tage)
         self.assertEqual(w1.icon, ticon)
         self.assertEqual(w1.style, tstyle)
-        self.assertEqual(w1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(w1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(w1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(w1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Whiskey name taken'''
         with self.assertRaises(IntegrityError):
@@ -359,8 +389,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(b.title, tt1)
         self.assertEqual(b.text, ttext)
         self.assertEqual(b.userId, tu.userId)
-        self.assertEqual(b.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(b.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(b.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(b.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Blog entry title taken taken'''
         with self.assertRaises(IntegrityError):
@@ -416,8 +446,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(s.drinkability, drink)
         self.assertEqual(s.complexity, comp)
         self.assertEqual(s.mouthfeel, mf)
-        self.assertEqual(s.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(s.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(s.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(s.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Calculated score already exists for whiskey'''
         with self.assertRaises(IntegrityError):
@@ -495,8 +525,8 @@ class DBTest(unittest.TestCase):
         r1 = self.dbm.getUserRatingByWhiskeyId(w1.whiskeyId, u1.userId)
         self.assertEqual(r1.rating, trating)
         self.assertEqual(r1.notes, tnotes)
-        self.assertEqual(r1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(r1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(r1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(r1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''College rater case'''
         self.dbm.addUserRating(whiskeyId=w2.whiskeyId, userId=u2.userId, rating=trating, notes=tnotes, sweet=tsweet, sour=tsour, heat=theat, smooth=tsmooth, finish=tfinish, crisp=tcrisp, leather=tleather, wood=twood, smoke=tsmoke, citrus=tcitrus, floral=tfloral, fruit=tfruit)
@@ -515,8 +545,8 @@ class DBTest(unittest.TestCase):
         self.assertEqual(r2.citrus, tcitrus)
         self.assertEqual(r2.floral, tfloral)
         self.assertEqual(r2.fruit, tfruit)
-        self.assertEqual(r2.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
-        self.assertEqual(r2.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1))
+        self.assertEqual(r2.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
+        self.assertEqual(r2.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''User rating already exists for whiskey'''
         with self.assertRaises(IntegrityError):

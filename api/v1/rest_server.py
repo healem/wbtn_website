@@ -22,7 +22,7 @@ app.secret_key = secret
 from rest.restplus import api, apiBlueprint
 from rest.sample import sampleApi
 from rest.auth.routes import authApi
-from rest.user import userApi
+from rest.user.routes import userApi
 from rest import decorators
 
 api.add_namespace(sampleApi)

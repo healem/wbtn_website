@@ -1,4 +1,4 @@
-#!../../bin/python
+#!../../../bin/python
 import logging
 from flask import session, Blueprint
 from flask_restplus import Resource, Namespace, fields, reqparse, abort

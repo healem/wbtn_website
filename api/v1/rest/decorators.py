@@ -1,10 +1,10 @@
 #!../../bin/python
 import logging
 from functools import wraps
-from expiringdict import ExpiringDict
 from auth.helpers import getUserWithAutoCreate
 from flask import session
 from flask_restplus import abort
+from user_cache import userCache
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +64,8 @@ def getUserFromSession(session):
                 # Got the user, now put it in cache
                 userCache[session['api_session_token']] = user
                 
+            logger.debug("User cache entry: %s", user.__dict__)
+                
         except (NameError):
             logger.warn("User authentication to social failed")
             return abort(401, reason="AUTH_FAILED")
@@ -80,6 +82,3 @@ def checkPermission(user, permission):
         return True
     else:
         return abort(401, reason="NO_PERMISSION")
-    
-#userCache = TTLCache(maxsize=500, ttl=3600, missing=getUserWithAutoCreate)
-userCache = ExpiringDict(max_len=500, max_age_seconds=3600)

@@ -109,12 +109,21 @@ class DbManager(object):
             self.logger.error("%d users found for id %s", rowsUpdated, userId)
             raise IntegrityError("%d rows found with userId %s", rowsUpdated, userId)
         
+    def setUserRater(self, email, isUserRater):
+        ''' Give the user normal rating permissions '''
+        self.logger.info("Setting user %s rating permissions to %s", email, isUserRater)
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(userRater=isUserRater,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
     def setAdmin(self, email, isAdmin):
         ''' Give the user admin permissions '''
         self.logger.info("Setting user %s admin permissions to %s", email, isAdmin)
         self.db.connect()
         with self.db.transaction():
-            query = peewee_models.User.update(whiskeyAdmin=isAdmin).where(peewee_models.User.email == email)
+            query = peewee_models.User.update(whiskeyAdmin=isAdmin,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
             query.execute()
         self.db.close
         
@@ -122,7 +131,7 @@ class DbManager(object):
         ''' Give the user blog writing permissions '''
         self.db.connect()
         with self.db.transaction():
-            query = peewee_models.User.update(blogWriter=isBlogWriter).where(peewee_models.User.email == email)
+            query = peewee_models.User.update(blogWriter=isBlogWriter,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
             query.execute()
         self.db.close
         
@@ -130,7 +139,39 @@ class DbManager(object):
         ''' Give the user college rating permissions '''
         self.db.connect()
         with self.db.transaction():
-            query = peewee_models.User.update(collegeRater=isCollegeRater).where(peewee_models.User.email == email)
+            query = peewee_models.User.update(collegeRater=isCollegeRater,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
+    def setFirstName(self, email, firstName):
+        '''Update the user's firstname'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(firstName=firstName,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
+    def setLastName(self, email, lastName):
+        '''Update the user's lastname'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(lastName=lastName,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
+            query.execute()
+        self.db.close
+        
+    def setEmail(self, currentEmail, newEmail):
+        '''Update the user's email'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(email=newEmail,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == currentEmail)
+            query.execute()
+        self.db.close
+        
+    def setSocialId(self, email, socialId):
+        '''Update the user's social ID'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.User.update(socialId=socialId,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
             query.execute()
         self.db.close
 
