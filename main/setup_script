@@ -12,4 +12,7 @@ pip install pycodestyle
 pip install rauth
 pip install simplejson
 pip install enum
+pip install flask_restplus
+pip install validate_email
+pip install expiringdict
 git remote set-url origin https://healem@github.com/healem/wbtn_website.git
