@@ -61,8 +61,22 @@ def loginUser(token, provider):
         logger.warn("User authentication to social failed")
         return abort(401, reason="AUTH_FAILED")
     
+    localUser = None
+    if 'email' in socialUserInfo:
+        localUser = getLocalUser(socialUserInfo['email'])
+        if localUser is None:
+            logger.warn("User auth to social succeeded, but local auth failed - %s might need to register?", socialUserInfo['email'])
+            return abort(401, reason="AUTH_FAILED")
+    else:
+        logger.error("Social user has no email, unable to complete login")
+        return abort(401, reason="AUTH_FAILED")  
+    
     # Put it in the session
     session['api_session_token'] = token
+    session['userRater'] = getattr(localUser, "userRater")
+    session['blogWriter'] = getattr(localUser, "blogWriter")
+    session['collegeRater'] = getattr(localUser, "collegeRater")
+    session['whiskeyAdmin'] = getattr(localUser, "whiskeyAdmin")
     
     ## Return session
     return 201
