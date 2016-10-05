@@ -100,13 +100,42 @@
                 // Here we run a very simple test of the Graph API after login is
                 // successful.  See statusChangeCallback() for when this call is made.
                 function testAPI(accessToken) {
+                  var baseUrl='https://whiskey.bythenums/com/main'
+                
                   console.log('Welcome!  Fetching your information.... ');
-                  FB.api('/me', function(response) {
-                    console.log('Successful login for: ' + response.name);
+                  FB.api('/me?fields=email, name', function(response) {
+                    console.log('Successful login for: ' + response.name + " at email " + response.email);
                     document.getElementById('status').innerHTML =
-                      'Thanks for logging in, ' + response.name + '!';
+                      'Thanks for logging in, ' + response.name + " at email " + response.email + '!';
+                    
+                    submitWBTN(token, email);
                   });
                 }
+                
+                // Submit to server
+                function submitWBTN(token, email) {
+                    tryLogin(token)
+                }
+                    
+                function tryLogin(token) {
+                    $.ajax({
+                        url: baseUrl + '/auth/login',
+                        dataType: json,
+                        data: { token: accessToken,
+                                provider: 1},
+                        success: tryLoginSuccess(data),
+                        error: tryLoginFailure(data)
+                    });
+                }
+                
+                function tryLoginFailure(data) {
+                    console.log("Failed wbtn login: ", data);
+                }
+                
+                function tryLoginSuccess(data) {
+                    console.log("Successful wbtn login: ", data);
+                }
+                
               </script>
               
               <!--
@@ -115,7 +144,7 @@
                 the FB.login() function when clicked.
               -->
               
-              <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+              <fb:login-button scope="public_profile,email" size="large" onlogin="checkLoginState();">
               </fb:login-button>
               
               <div id="status">

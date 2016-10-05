@@ -1,8 +1,10 @@
 #!/home/bythenum/public_html/whiskey/main/bin/python
+from os import path, walk
 import ConfigParser
 import logging
 from utils import loginit
 from flask import Flask, jsonify, render_template, request
+from auth import registerUser, loginUser
 
 loginit.initLogging()
 app = Flask(__name__)
@@ -13,6 +15,24 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 def login():
     ''' Login page '''
     return render_template("login.html")
+
+@app_route('/auth/login')
+def authLogin():
+    token = request.args.get('token', None, type=str)
+    provider = request.args.get('provider', 1, type=int)
+    return loginUser(token, provider)
+
+@app.route('/register/', strict_slashes=False)
+def register():
+    '''Register page'''
+    return render_template("register.html")
+
+@app_route('/auth/register')
+def authRegister():
+    token = request.args.get('token', None, type=str)
+    email = request.args.get('email', None, type=str)
+    provider = request.args.get('provider', 1, type=int)
+    return registerUser(token, email, provider)
 
 @app.route('/')
 def frontend():
@@ -42,6 +62,16 @@ def add_header(r):
     r.headers['Cache-Control'] = 'public, max-age=0'
     return r
 
+extra_dirs = ['templates',
+              'templates/common',]
+extra_files = extra_dirs[:]
+for extra_dir in extra_dirs:
+    for dirname, dirs, files in walk(extra_dir):
+        for filename in files:
+            filename = path.join(dirname, filename)
+            if path.isfile(filename):
+                extra_files.append(filename)
+
 @app.errorhandler(404)
 def not_found(error):
     app.logger.error('Page not found: %s', request.path)
@@ -53,4 +83,4 @@ def internal_error(error):
     return render_template('common/500.html'), 500
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=False, extra_files=extra_files)

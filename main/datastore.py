@@ -5,21 +5,23 @@ import simplejson
 from flask_restplus import abort
 from .constants import DATA_BASE_URL
 
-def register():
-    backSess = requests.session(token, email, provider=1)
+def registerToBack(token, email, provider):
+    backSess = requests.session(token, email, provider)
     data = { 'token': token, 'provider': provider, 'email': email}
     resp = backSess.post("{}/register".format(DATA_BASE_URL), data=data)
     
-    if handleResponse(resp) is True:
-        pass
+    handleResponse(resp)
+    
+    return backSess
 
-def login():
-    backSess = requests.session(token, provider=1)
+def loginToBack(token, provider):
+    backSess = requests.session(token, provider)
     data = { 'token': token, 'provider': provider, 'email': email}
     resp = backSess.post("{}/register".format(DATA_BASE_URL), data=data)
     
-    if handleResponse(resp) is True:
-        pass
+    handleResponse(resp)
+    
+    return backSess
         
 def handleResponse(resp):
     if resp.status_code == 200 or resp.status_code == 201:
