@@ -4,19 +4,25 @@ import ConfigParser
 import logging
 from utils import loginit
 from flask import Flask, jsonify, render_template, request
-from auth import registerUser, loginUser
+from auth.helpers import registerUser, loginUser
+from constants import CONFIG_FILE
 
 loginit.initLogging()
 app = Flask(__name__)
 app.logger.setLevel("DEBUG")
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+config = ConfigParser.ConfigParser()
+config.read(CONFIG_FILE)
+secret = config.get("front", "secret")
+app.secret_key = secret
+
 @app.route('/login/', strict_slashes=False)
 def login():
     ''' Login page '''
     return render_template("login.html")
 
-@app_route('/auth/login')
+@app.route('/auth/login')
 def authLogin():
     token = request.args.get('token', None, type=str)
     provider = request.args.get('provider', 1, type=int)
@@ -27,7 +33,7 @@ def register():
     '''Register page'''
     return render_template("register.html")
 
-@app_route('/auth/register')
+@app.route('/auth/register')
 def authRegister():
     token = request.args.get('token', None, type=str)
     email = request.args.get('email', None, type=str)

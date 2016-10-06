@@ -27,6 +27,17 @@
             </div>
             <h3>Welcome to WBTN</h3>
             <p>Login in. We are still building the site - only admins will be allowed</p>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                   <ul>
+                      {% for message in messages %}
+                      <li<{{ message }}</li>
+                      {% endfor %}
+                   </ul>
+                {% endif %}
+            {% endwith %}
+            
             <script>
                 // This is called with the results from from FB.getLoginStatus().
                 function statusChangeCallback(response) {
@@ -100,40 +111,55 @@
                 // Here we run a very simple test of the Graph API after login is
                 // successful.  See statusChangeCallback() for when this call is made.
                 function testAPI(accessToken) {
-                  var baseUrl='https://whiskey.bythenums/com/main'
-                
                   console.log('Welcome!  Fetching your information.... ');
                   FB.api('/me?fields=email, name', function(response) {
                     console.log('Successful login for: ' + response.name + " at email " + response.email);
                     document.getElementById('status').innerHTML =
                       'Thanks for logging in, ' + response.name + " at email " + response.email + '!';
                     
-                    submitWBTN(token, email);
+                    submitWBTN(accessToken, response.email);
                   });
                 }
                 
                 // Submit to server
                 function submitWBTN(token, email) {
-                    tryLogin(token)
+                    tryLogin(token, email)
                 }
                     
-                function tryLogin(token) {
+                function tryLogin(token, email) {
+                    var baseUrl='https://whiskey.bythenums.com/main'
+                    
                     $.ajax({
                         url: baseUrl + '/auth/login',
-                        dataType: json,
-                        data: { token: accessToken,
+                        dataType: 'json',
+                        data: { token: token,
                                 provider: 1},
-                        success: tryLoginSuccess(data),
-                        error: tryLoginFailure(data)
+                        success: function(data){
+                            console.log("Successful wbtn login: ", data);
+                        },
+                        error: function(data){
+                            console.log("Failed wbtn login: ", data);
+                            tryRegister(token, email);
+                        }
                     });
                 }
                 
-                function tryLoginFailure(data) {
-                    console.log("Failed wbtn login: ", data);
-                }
-                
-                function tryLoginSuccess(data) {
-                    console.log("Successful wbtn login: ", data);
+                function tryRegister(token, email) {
+                    var baseUrl='https://whiskey.bythenums.com/main'
+                    
+                    $.ajax({
+                        url: baseUrl + '/auth/register',
+                        dataType: 'json',
+                        data: { token: token,
+                                email: email,
+                                provider: 1},
+                        success: function(data){
+                            console.log("Successful wbtn register: ", data);
+                        },
+                        error: function(data){
+                            console.log("Failed wbtn register: ", data);
+                        }
+                    });
                 }
                 
               </script>

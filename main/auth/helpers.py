@@ -2,8 +2,8 @@
 import logging
 from flask import session, flash, redirect, url_for
 from validate_email import validate_email
-from ..datastore import registerToBack, loginToBack
-from ..session_cache import sessionCache
+from datastore import registerToBack, loginToBack
+from session_cache import sessionCache
 #from utils import loginit
 
 #loginit.initLogging()

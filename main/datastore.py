@@ -2,11 +2,11 @@
 import logging
 import requests
 import simplejson
-from flask_restplus import abort
-from .constants import DATA_BASE_URL
+from flask import redirect, url_for, flash
+from constants import DATA_BASE_URL
 
 def registerToBack(token, email, provider):
-    backSess = requests.session(token, email, provider)
+    backSess = requests.session()
     data = { 'token': token, 'provider': provider, 'email': email}
     resp = backSess.post("{}/register".format(DATA_BASE_URL), data=data)
     
@@ -15,9 +15,9 @@ def registerToBack(token, email, provider):
     return backSess
 
 def loginToBack(token, provider):
-    backSess = requests.session(token, provider)
-    data = { 'token': token, 'provider': provider, 'email': email}
-    resp = backSess.post("{}/register".format(DATA_BASE_URL), data=data)
+    backSess = requests.session()
+    data = { 'token': token, 'provider': provider }
+    resp = backSess.post("{}/login".format(DATA_BASE_URL), data=data)
     
     handleResponse(resp)
     
@@ -29,32 +29,31 @@ def handleResponse(resp):
     elif resp.status_code == 401:
         return handle_401(resp)
     else:
-        # flash message below
-        return abort(resp.status_code, reason="Contact support with error: {}".format(resp.json()["reason"]))
+        flash("Contact support with error: {}".format(resp.json()["reason"]))
+        return redirect(url_for(login))
     
 def handle_401(resp):
     if resp.json()["reason"] == "NO_EMAIL":
-        #flash "No email address given" and return to registration form
-        pass
+        flash("No email address - please provide email address")
+        return redirect(url_for(register))
     elif resp.json()["reason"]  == "INVALID_EMAIL":
-        #flash "Invalid email address, please ensure your email address is entered correctly
-        # return to registration form
-        pass
+        flash("Invalid email address, please ensure your email address is entered correctly")
+        return redirect(url_for(register))
     elif resp.json()["reason"]  == "AUTH_FAILED":
-        #flash authentication to social media failed, return to social media login form
-        pass
+        flash("Login to social media failed")
+        return redirect(url_for(login))
     elif resp.json()["reason"] == "UNSUPPORTED_PROVIDER":
-        # flash please choose a supported social media to authenticate with, return to social media login form
-        pass
+        flash("Social media provider unsupported - please try a supported provider")
+        return redirect(url_for(login))
     elif resp.json()["reason"] == "ALREADY_REGISTERED":
-        # flash already registered, please login - return to login page
-        pass
+        flash("Already registered - please login")
+        return redirect(url_for(login))
     elif resp.json()["reason"] == "ACCOUNT_NOT_UNIQUE":
-        # flash user already taken, return to login page
-        pass
+        flash("This email address is already registered, please login or register with another email")
+        return redirect(url_for(register))
     elif resp.json()["reason"] == "NO_PERMISSION":
-        # flash no permission and return to front page
-        pass
+        flash("You don't have permission to view this page")
+        return redirect(url_for(login))
     else:
         # Unhandled error
         pass

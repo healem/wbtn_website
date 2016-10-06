@@ -62,10 +62,10 @@ def loginUser(token, provider):
         return abort(401, reason="AUTH_FAILED")
     
     localUser = None
-    if 'email' in socialUserInfo:
-        localUser = getLocalUser(socialUserInfo['email'])
+    if 'email' in socialUser:
+        localUser = getLocalUser(socialUser['email'])
         if localUser is None:
-            logger.warn("User auth to social succeeded, but local auth failed - %s might need to register?", socialUserInfo['email'])
+            logger.warn("User auth to social succeeded, but local auth failed - %s might need to register?", socialUser['email'])
             return abort(401, reason="AUTH_FAILED")
     else:
         logger.error("Social user has no email, unable to complete login")
