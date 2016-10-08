@@ -4,11 +4,16 @@ import requests
 import simplejson
 from flask import redirect, url_for, flash
 from constants import DATA_BASE_URL
+#from auth.routes import auth
+
+logger = logging.getLogger(__name__)
 
 def registerToBack(token, email, provider):
     backSess = requests.session()
     data = { 'token': token, 'provider': provider, 'email': email}
     resp = backSess.post("{}/register".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Register to back response: {}".format(resp.json()))
     
     handleResponse(resp)
     
@@ -18,6 +23,8 @@ def loginToBack(token, provider):
     backSess = requests.session()
     data = { 'token': token, 'provider': provider }
     resp = backSess.post("{}/login".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Login to back response: {}".format(resp.json()))
     
     handleResponse(resp)
     
@@ -29,31 +36,32 @@ def handleResponse(resp):
     elif resp.status_code == 401:
         return handle_401(resp)
     else:
-        flash("Contact support with error: {}".format(resp.json()["reason"]))
-        return redirect(url_for(login))
+        logger.error("Unhandled response: {}".format(resp.json()))
+        flash("Contact support with error: {}".format(resp.json()))
+        return redirect(url_for("auth.login"))
     
 def handle_401(resp):
     if resp.json()["reason"] == "NO_EMAIL":
         flash("No email address - please provide email address")
-        return redirect(url_for(register))
+        return redirect(url_for("auth.register"))
     elif resp.json()["reason"]  == "INVALID_EMAIL":
         flash("Invalid email address, please ensure your email address is entered correctly")
-        return redirect(url_for(register))
+        return redirect(url_for("auth.register"))
     elif resp.json()["reason"]  == "AUTH_FAILED":
         flash("Login to social media failed")
-        return redirect(url_for(login))
+        return redirect(url_for("auth.login"))
     elif resp.json()["reason"] == "UNSUPPORTED_PROVIDER":
         flash("Social media provider unsupported - please try a supported provider")
-        return redirect(url_for(login))
+        return redirect(url_for("auth.login"))
     elif resp.json()["reason"] == "ALREADY_REGISTERED":
         flash("Already registered - please login")
-        return redirect(url_for(login))
+        return redirect(url_for("auth.login"))
     elif resp.json()["reason"] == "ACCOUNT_NOT_UNIQUE":
         flash("This email address is already registered, please login or register with another email")
-        return redirect(url_for(register))
+        return redirect(url_for("auth.register"))
     elif resp.json()["reason"] == "NO_PERMISSION":
         flash("You don't have permission to view this page")
-        return redirect(url_for(login))
+        return redirect(url_for("auth.login"))
     else:
         # Unhandled error
         pass

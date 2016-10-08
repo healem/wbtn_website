@@ -4,7 +4,6 @@ import ConfigParser
 import logging
 from utils import loginit
 from flask import Flask, jsonify, render_template, request
-from auth.helpers import registerUser, loginUser
 from constants import CONFIG_FILE
 
 loginit.initLogging()
@@ -17,28 +16,9 @@ config.read(CONFIG_FILE)
 secret = config.get("front", "secret")
 app.secret_key = secret
 
-@app.route('/login/', strict_slashes=False)
-def login():
-    ''' Login page '''
-    return render_template("login.html")
-
-@app.route('/auth/login')
-def authLogin():
-    token = request.args.get('token', None, type=str)
-    provider = request.args.get('provider', 1, type=int)
-    return loginUser(token, provider)
-
-@app.route('/register/', strict_slashes=False)
-def register():
-    '''Register page'''
-    return render_template("register.html")
-
-@app.route('/auth/register')
-def authRegister():
-    token = request.args.get('token', None, type=str)
-    email = request.args.get('email', None, type=str)
-    provider = request.args.get('provider', 1, type=int)
-    return registerUser(token, email, provider)
+# Register admin blueprint
+from auth.routes import auth
+app.register_blueprint(auth)#, url_prefix="/admin")
 
 @app.route('/')
 def frontend():
@@ -87,6 +67,8 @@ def not_found(error):
 def internal_error(error):
     app.logger.error('Internal error: %s at path: %s', error, request.path)
     return render_template('common/500.html'), 500
+
+app.logger.info("url_map before: %s", app.url_map)
 
 if __name__ == '__main__':
     app.run(debug=False, extra_files=extra_files)
