@@ -3,7 +3,7 @@ import sys
 import os
 #sys.path.insert(0, '/home/bythenum/public_html/whiskey/main/lib/python2.7/site-packages')
 from flup.server.fcgi import WSGIServer
-from frontend import app
+from app import app
 
 class ScriptNameStripper(object):
    def __init__(self, app):
