@@ -1,7 +1,8 @@
 #!../../bin/python
 import logging
+import pickle as pk
 from functools import wraps
-from flask import session, redirect, url_for
+from flask import session, redirect, url_for, flash
 from app.admin.session_cache import sessionCache
 from app.admin import admin
 
@@ -11,10 +12,12 @@ logger = logging.getLogger(__name__)
 def require_token(func):
     @wraps(func)
     def check_token(*args, **kwargs):
-        getBackSession(session)
-
-        # Auth successful - send them onward
-        return func(*args, **kwargs)
+        if getUserFromSession(session) is None:
+            flash("No active session - please login")
+            return redirect("https://whiskey.bythenums.com/main/login")
+        else:
+            # Auth successful - send them onward
+            return func(*args, **kwargs)
 
     return check_token
 
@@ -22,10 +25,13 @@ def require_token(func):
 def require_admin(func):
     @wraps(func)
     def check_admin(*args, **kwargs):
-        bs = getBackSession(session)
-        
         # don't blindly trust the session, verify locally if user has rights
-        checkPermission(bs, 'whiskeyAdmin')
+        if checkPermission('whiskeyAdmin') == True:
+            # Permission check successful - send them onward
+            return func(*args, **kwargs)
+        else:
+            flash("Admin permissions required.  Please login as a valid admin.")
+            return redirect("https://whiskey.bythenums.com/main/login")
     
     return check_admin
 
@@ -33,10 +39,13 @@ def require_admin(func):
 def require_blog(func):
     @wraps(func)
     def check_blog(*args, **kwargs):
-        bs = getBackSession(session)
-        
         # don't blindly trust the session, verify locally if user has rights
-        checkPermission(bs, 'blogWriter')
+        if checkPermission('blogWriter') == True:
+            # Permission check successful - send them onward
+            return func(*args, **kwargs)
+        else:
+            flash("Blog writer permissions required.  Please login with a valid blog writer account.")
+            return redirect("https://whiskey.bythenums.com/main/login")
         
     return check_blog
 
@@ -44,34 +53,37 @@ def require_blog(func):
 def require_college(func):
     @wraps(func)
     def check_college(*args, **kwargs):
-        bs = getBackSession(session)
-        
         # don't blindly trust the session, verify locally if user has rights
-        checkPermission(bs, 'collegeRater')
+        if checkPermission('collegeRater') == True:
+            # Permission check successful - send them onward
+            return func(*args, **kwargs)
+        else:
+            flash("College rating permissions required.  Please login with a valid college rater account.")
+            return redirect("https://whiskey.bythenums.com/main/login")
     
     return check_college
 
-def getBackSession(session):
+def getUserFromSession(session):
     user = None
     # Check to see if it's in their session
     if 'api_session_token' not in session:
         logger.warn("User authentication failed, no token in session - please login")
-        #return redirect(url_for("admin.login"))
-        return redirect("https://whiskey.bythenums.com/main/login")
     else:
         # validate token
         # Check if the session is in cache
-        sess = sessionCache.get(session['api_session_token'])
-        if sess is None:
+        user = sessionCache.get(session['api_session_token'])
+        if user is None:
             logger.debug("Session expired, reauthenticate with the backend")
-            #return redirect(url_for(admin.login))
-            return redirect("https://whiskey.bythenums.com/main/login")
         
-    return sess
+    return user
 
-def checkPermission(backSession, permission):
-    logger.info("Backsession: %s", backSession)
-    if backSession[permission] == True:
+def checkPermission(permission):
+    user = getUserFromSession(session)
+    
+    if user is None:
+        return False
+    
+    if getattr(user, permission) == True:
         return True
     else:
-        return abort(401, reason="NO_PERMISSION")
+        return False

@@ -1,4 +1,4 @@
-#!../bin/python
+#!/home/bythenum/public_html/whiskey/main/bin/python
 import logging
 from flask import session, flash, redirect, url_for, Response
 from validate_email import validate_email
@@ -6,7 +6,6 @@ from app.admin.datastore import DataResponse, registerToBack, loginToBack
 from app.admin.session_cache import sessionCache
 from app.admin import admin
 
-#loginit.initLogging()
 logger = logging.getLogger(__name__)
 
 def registerUser(token, email, provider=1):
@@ -20,29 +19,39 @@ def registerUser(token, email, provider=1):
     # call backend register
     resp = registerToBack(token, email, provider)
     
+    backSession = None
+    if resp.status == 200:
+        backSession = resp.data
+    else:
+        return resp.message
+    
     # create session
-    return createSession(token, resp)
+    return createSession(token)
 
 def validEmail(email):
     return validate_email(email)
     
 def loginUser(token, provider=1):
-    logger.info("Logging in user with token: {}".format(token))
+    logger.info("Logging in user with token")
     # Call backend login
     resp = loginToBack(token, provider)
     
-    # create session
-    return createSession(token, resp)
-
-def createSession(token, dataResponse):
-    # Check if we successfully got the session
-    if dataResponse.status == 200:
-        # Save the session to cache
-        sessionCache[token] = dataResponse.backSession
-        
-        # Put it in the front session
-        session['api_session_token'] = token
-        
-        return 'OK'
+    user = None
+    if resp.status == 200:
+        user = resp.data
     else:
-        return dataResponse.message
+        return resp.message
+    
+    cacheUser(token, user)
+    
+    # create session
+    return createSession(token)
+
+def cacheUser(token, user):
+    sessionCache[token] = user
+
+def createSession(token):    
+    # Put it in the front session
+    session['api_session_token'] = token
+    
+    return 'OK'

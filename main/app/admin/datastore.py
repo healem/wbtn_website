@@ -5,14 +5,15 @@ import simplejson
 from flask import redirect, url_for, flash
 from app.constants import DATA_BASE_URL
 from app.admin import admin
+from app.admin.user import User
 
 logger = logging.getLogger(__name__)
 
 class DataResponse(object):
-    def __init__(self, status, backSession=None, message=None):
+    def __init__(self, status, message=None, data=None):
         self.status = status
-        self.backSession = backSession
         self.message = message
+        self.data = data
 
 def registerToBack(token, email, provider):
     backSess = requests.session()
@@ -21,7 +22,7 @@ def registerToBack(token, email, provider):
     
     logger.debug("Register to back response: {}".format(resp.json()))
     
-    return handleResponse(resp, backSess)
+    return handleResponse(resp, data=backSess)
 
 def loginToBack(token, provider):
     backSess = requests.session()
@@ -30,18 +31,44 @@ def loginToBack(token, provider):
     
     logger.debug("Login to back response: {}".format(resp.json()))
     
-    return handleResponse(resp, backSess)
+    user = getMe(backSess)
+    
+    return handleResponse(resp, data=user)
+
+def getMe(backSession):
+    resp = backSession.get("{}/me".format(DATA_BASE_URL))
+    json = simplejson.loads(resp.json())
+    
+    logger.debug("Get me response: {}".format(json))
+    
+    user = User(userId=json["userId"],
+                email=json['email'],
+                createdTime=json['createdTime'],
+                backSession=backSession,
+                userRater=json['userRater'],
+                blogWriter=json['blogWriter'],
+                collegeRater=json['collegeRater'],
+                whiskeyAdmin=json['whiskeyAdmin'],
+                socialId=json['socialId'],
+                firstName=json['firstName'],
+                middleInitial=json['middleInitial'],
+                lastName=json['lastName'],
+                suffix=json['suffix'],
+                lastUpdatedTime=json['lastUpdatedTime'],
+                icon=json['icon'])
+    
+    return user
         
-def handleResponse(resp, backSession):
+def handleResponse(resp, data=None):
     if resp.status_code == 200 or resp.status_code == 201:
-        return DataResponse(200, backSession)
+        return DataResponse(status=200, data=data)
     elif resp.status_code == 401:
-        return DataResponse(401, None, resp.json()["reason"])
+        return DataResponse(status=401, message=resp.json()["reason"])
         #return handle_401(resp)
     else:
         logger.error("Unhandled response: {}".format(resp.json()))
         flash("Contact support with error: {}".format(resp.json()))
-        return DataResponse(500, None, "Contact support with error: {}".format(resp.json()))
+        return DataResponse(status=500, message="Contact support with error: {}".format(resp.json()))
         #return redirect(url_for(admin.login))
     
 def handle_401(resp):
