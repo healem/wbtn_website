@@ -45,14 +45,18 @@ postParser.add_argument('collegeRater', type=bool, required=False, help='User ha
 postParser.add_argument('whiskeyAdmin', type=bool, required=False, help='The user is an admin')
 postParser.add_argument('dumpCache', type=bool, required=False, help='Flush the user cache')
 
-@api.route('/users')
+@api.route('/allusers')
 class WBTNUsers(Resource):
     @require_token
     @require_admin
     @api.expect(getAllParser)
     def get(self):
+        logger.debug("Incoming request for all users")
         args = getAllParser.parse_args()
-        return dbm.getAllUsers(args['currentPage'], args['itemsPerPage'])
+        logger.debug("Getting all users with args: %s", args)
+        allUsers = dbm.getAllUsers(args['currentPage'], args['itemsPerPage'])
+        logger.debug("Returning allUsers: %s", allUsers)
+        return allUsers
 
 @api.route('/user')
 class WBTNUser(Resource):

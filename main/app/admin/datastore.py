@@ -44,10 +44,10 @@ def loginToBack(token, provider):
 
 def getMe(backSession):
     resp = backSession.get("{}/me".format(DATA_BASE_URL))
-    logger.debug("getMe raw response: {}".format(resp.json()))
+    #logger.debug("getMe raw response: {}".format(resp.json()))
     json = simplejson.loads(resp.json())
     
-    logger.debug("Get me response: {}".format(json))
+    #logger.debug("Get me response: {}".format(json))
     
     user = User(userId=json["userId"],
                 email=json['email'],
@@ -69,11 +69,12 @@ def getMe(backSession):
 
 def getAllUsersFromBack(currentPage, itemsPerPage):
     user = getUserFromSession(session)
-    backSession = user['backSession']
+    backSession = user.backSession
+    logger.debug("Backsession for getAllUsers: {}".format(backSession))
     data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage }
-    resp = backSession.get("{}/users".format(DATA_BASE_URL), data=data)
+    resp = backSession.get("{}/allusers".format(DATA_BASE_URL), data=data)
     
-    logger.debug("Response to getAllUsers: {}".format(resp.json()))
+    logger.debug("Response to getAllUsers: %d with data", resp.status_code)
     
     return resp.json()
         

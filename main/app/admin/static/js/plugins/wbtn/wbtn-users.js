@@ -38,8 +38,9 @@ $(document).ready(function () {
 
     // Configuration for user table
     $("#table_list").jqGrid({
-        data: mydata,
-        datatype: "local",
+        url: "https://whiskey.bythenums.com/main/users/getAllUsers",
+        datatype: "json",
+        mtype: 'GET',
         height: 450,
         autowidth: true,
         shrinkToFit: true,
@@ -66,7 +67,7 @@ $(document).ready(function () {
         edit: true,
         addtext: 'Add',
         edittext: 'Edit',
-        hidegrid: false
+        hidegrid: false,
     });
 
     // Add selection

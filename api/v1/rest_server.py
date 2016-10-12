@@ -31,7 +31,7 @@ api.add_namespace(userApi)
 
 app.register_blueprint(apiBlueprint)
 
-#app.logger.info("url_map before: %s", app.url_map)
+app.logger.info("url_map before: %s", app.url_map)
 
 #@app.route('/')
 #def hello_world():

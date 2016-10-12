@@ -113,6 +113,7 @@ class DbManager(object):
         
     def getAllUsers(self, currentPage, itemsPerPage):
         ''' Get all users - paged.  First page returned is 1 (not 0)'''
+        self.logger.debug("Requesting page %d from allUsers", currentPage)
         # Cap itemsPerPage at 100
         if itemsPerPage > 100:
             self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
@@ -128,6 +129,8 @@ class DbManager(object):
                                               peewee_models.User.whiskeyAdmin).order_by(peewee_models.User.lastName).paginate(currentPage, itemsPerPage):
             users.append(model_to_dict(user))
         self.db.close
+        
+        self.logger.debug("Returning users: %s", simplejson.dumps(users))
         
         return simplejson.dumps(users)
         

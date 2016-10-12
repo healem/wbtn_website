@@ -18,8 +18,10 @@ def users_view():
 @require_token
 @require_admin
 def get_all_users():
-    currentPage = request.args.get('currentPage', 1, type=int)
-    itemsPerPage = request.args.get('itemsPerPage', 10, type=int)
+    #logger.debug("Dump of args for get_all_users: %s", request.args)
+    currentPage = request.args.get('page', 1, type=int)
+    itemsPerPage = request.args.get('rows', 10, type=int)
+    logger.info("Getting user page %d with %d items per page", currentPage, itemsPerPage)
     if itemsPerPage > 100:
         logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
         itemsPerPage = 100
