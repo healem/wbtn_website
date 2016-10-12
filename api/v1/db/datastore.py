@@ -3,8 +3,10 @@
 import models
 import logging
 import datetime
+import simplejson
 from peewee_wbtn import peewee_models
 from peewee import IntegrityError, DoesNotExist
+from playhouse.shortcuts import model_to_dict
 import ConfigParser
 
 class DbManager(object):
@@ -108,6 +110,26 @@ class DbManager(object):
         elif rowsUpdated > 1:
             self.logger.error("%d users found for id %s", rowsUpdated, userId)
             raise IntegrityError("%d rows found with userId %s", rowsUpdated, userId)
+        
+    def getAllUsers(self, currentPage, itemsPerPage):
+        ''' Get all users - paged.  First page returned is 1 (not 0)'''
+        # Cap itemsPerPage at 100
+        if itemsPerPage > 100:
+            self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
+            itemsPerPage = 100
+        users = []
+        self.db.connect()
+        for user in peewee_models.User.select(peewee_models.User.firstName,
+                                              peewee_models.User.lastName,
+                                              peewee_models.User.email,
+                                              peewee_models.User.userRater,
+                                              peewee_models.User.blogWriter,
+                                              peewee_models.User.collegeRater,
+                                              peewee_models.User.whiskeyAdmin).order_by(peewee_models.User.lastName).paginate(currentPage, itemsPerPage):
+            users.append(model_to_dict(user))
+        self.db.close
+        
+        return simplejson.dumps(users)
         
     def setUserRater(self, email, isUserRater):
         ''' Give the user normal rating permissions '''

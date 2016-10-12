@@ -1,0 +1,1 @@
+document.getElementById('user-name-banner').innerHTML = window.localStorage.getItem('current-username');

@@ -41,9 +41,9 @@ def registerUser(token, provider, email):
         logger.warn("User authentication to social failed")
         return abort(401, reason="AUTH_FAILED")
     
-    userInfo = { 'id': socialUser['id'],
-                 'email': email }
-    createLocalUser(userInfo)
+    socialUser['email'] = email
+    
+    createLocalUser(socialUser)
     
     # Need to create secret key for signing the session with - store in config file
     # Create session
@@ -73,10 +73,6 @@ def loginUser(token, provider):
     
     # Put it in the session
     session['api_session_token'] = token
-    session['userRater'] = getattr(localUser, "userRater")
-    session['blogWriter'] = getattr(localUser, "blogWriter")
-    session['collegeRater'] = getattr(localUser, "collegeRater")
-    session['whiskeyAdmin'] = getattr(localUser, "whiskeyAdmin")
     
     ## Return session
     return 201
@@ -145,10 +141,12 @@ def createLocalUser(userInfo):
     socialId = None
     firstName = None
     lastName = None
+    
     if 'id' in userInfo:
         socialId = userInfo['id']
     if 'first_name' in  userInfo:
         firstName = userInfo['first_name']
     if 'last_name' in userInfo:
         lastName = userInfo['last_name']
+
     dbm.addNormalUser(email=userInfo['email'], firstName=firstName, lastName=lastName, socialId=socialId)

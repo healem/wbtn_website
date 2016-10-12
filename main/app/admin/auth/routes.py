@@ -1,6 +1,6 @@
 #!../bin/python
 import logging
-from flask import session, Blueprint, request, render_template
+from flask import request, render_template
 from .helpers import registerUser, loginUser
 from app.admin import admin
 

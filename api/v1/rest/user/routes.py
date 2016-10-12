@@ -27,6 +27,10 @@ user = userApi.model('User', {
 
 dbm = datastore.DbManager(testMode=False)
 
+getAllParser = userApi.parser()
+getAllParser.add_argument('currentPage', type=int, required=True, help='Current page of the query, count starts at 1')
+getAllParser.add_argument('itemsPerPage', type=int, required=True, help='Number of items returned per page, max=100')
+
 getParser = userApi.parser()
 getParser.add_argument('email', type=str, required=True, help='The user email address')
 
@@ -40,6 +44,15 @@ postParser.add_argument('blogWriter', type=bool, required=False, help='User has 
 postParser.add_argument('collegeRater', type=bool, required=False, help='User has permission to create advanced ratings')
 postParser.add_argument('whiskeyAdmin', type=bool, required=False, help='The user is an admin')
 postParser.add_argument('dumpCache', type=bool, required=False, help='Flush the user cache')
+
+@api.route('/users')
+class WBTNUsers(Resource):
+    @require_token
+    @require_admin
+    @api.expect(getAllParser)
+    def get(self):
+        args = getAllParser.parse_args()
+        return dbm.getAllUsers(args['currentPage'], args['itemsPerPage'])
 
 @api.route('/user')
 class WBTNUser(Resource):

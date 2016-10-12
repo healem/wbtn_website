@@ -1,10 +1,10 @@
 #!../../bin/python
 import logging
-import pickle as pk
 from functools import wraps
 from flask import session, redirect, url_for, flash
 from app.admin.session_cache import sessionCache
 from app.admin import admin
+from app.admin.utils import getUserFromSession
 
 logger = logging.getLogger(__name__)
 
@@ -62,20 +62,6 @@ def require_college(func):
             return redirect("https://whiskey.bythenums.com/main/login")
     
     return check_college
-
-def getUserFromSession(session):
-    user = None
-    # Check to see if it's in their session
-    if 'api_session_token' not in session:
-        logger.warn("User authentication failed, no token in session - please login")
-    else:
-        # validate token
-        # Check if the session is in cache
-        user = sessionCache.get(session['api_session_token'])
-        if user is None:
-            logger.debug("Session expired, reauthenticate with the backend")
-        
-    return user
 
 def checkPermission(permission):
     user = getUserFromSession(session)
