@@ -2,7 +2,7 @@
 import logging
 from functools import wraps
 from auth.helpers import getUserWithAutoCreate
-from flask import session
+from flask import session, request
 from flask_restplus import abort
 from user_cache import userCache
 
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 def require_token(func):
     @wraps(func)
     def check_token(*args, **kwargs):
+        logger.info("Checking for token")
         getUserFromSession(session)
 
         # Auth successful - send them onward
@@ -23,8 +24,12 @@ def require_token(func):
 def require_admin(func):
     @wraps(func)
     def check_admin(*args, **kwargs):
+        logger.info("Checking for user permissions")
         user = getUserFromSession(session)
         checkPermission(user, 'whiskeyAdmin')
+        
+        # Permissions successful - send them onward
+        return func(*args, **kwargs)
     
     return check_admin
 
@@ -35,6 +40,9 @@ def require_blog(func):
         user = getUserFromSession(session)
         checkPermission(user, 'blogWriter')
         
+        # Permissions successful - send them onward
+        return func(*args, **kwargs)
+        
     return check_blog
 
 ''' Wrapper: check for college permissions '''
@@ -43,6 +51,9 @@ def require_college(func):
     def check_college(*args, **kwargs):
         user = getUserFromSession(session)
         checkPermission(user, 'collegeRater')
+        
+        # Permissions successful - send them onward
+        return func(*args, **kwargs)
     
     return check_college
 
@@ -79,6 +90,8 @@ def getUserFromSession(session):
 
 def checkPermission(user, permission):
     if getattr(user,permission) == True:
+        #logger.debug("%s granted access to %s", getattr(user, "email"), request.url)
         return True
     else:
+        logger.warn("%s denied access to %s", getattr(user, "email"), request.url)
         return abort(401, reason="NO_PERMISSION")

@@ -23,13 +23,11 @@ user = userApi.model('User', {
     'blogWriter': fields.Boolean(required=True, description='User has permission to create blog posts'),
     'collegeRater': fields.Boolean(required=True, description='User has permission to create advanced ratings'),
     'whiskeyAdmin': fields.Boolean(required=True, description='User is an admin'),
+    'currentPage': fields.Integer(required=False, description='Current page for multi-page query'),
+    'itemsPerPage': fields.Integer(required=False, description='The numbers of items to return per page of a multi-page query'),
 })
 
 dbm = datastore.DbManager(testMode=False)
-
-getAllParser = userApi.parser()
-getAllParser.add_argument('currentPage', type=int, required=True, help='Current page of the query, count starts at 1')
-getAllParser.add_argument('itemsPerPage', type=int, required=True, help='Number of items returned per page, max=100')
 
 getParser = userApi.parser()
 getParser.add_argument('email', type=str, required=True, help='The user email address')
@@ -45,17 +43,21 @@ postParser.add_argument('collegeRater', type=bool, required=False, help='User ha
 postParser.add_argument('whiskeyAdmin', type=bool, required=False, help='The user is an admin')
 postParser.add_argument('dumpCache', type=bool, required=False, help='Flush the user cache')
 
+getAllParser = userApi.parser()
+getAllParser.add_argument('currentPage', type=int, required=True, default=1, help='Current page of the query, count starts at 1')
+getAllParser.add_argument('itemsPerPage', type=int, required=True, default=20, help='Number of items returned per page, max=100')
+
 @api.route('/allusers')
 class WBTNUsers(Resource):
     @require_token
     @require_admin
-    @api.expect(getAllParser)
+    @api.expect(getAllParser, True)
     def get(self):
-        logger.debug("Incoming request for all users")
+        #logger.debug("Incoming request for all users")
         args = getAllParser.parse_args()
-        logger.debug("Getting all users with args: %s", args)
+        #logger.debug("Getting all users with args: %s", args)
         allUsers = dbm.getAllUsers(args['currentPage'], args['itemsPerPage'])
-        logger.debug("Returning allUsers: %s", allUsers)
+        #logger.debug("Returning allUsers: %s", allUsers)
         return allUsers
 
 @api.route('/user')

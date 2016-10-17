@@ -6,7 +6,7 @@ from db import datastore
 import logging
 from utils import loginit
 
-from flask import Flask, Blueprint, jsonify, url_for, session
+from flask import Flask, Blueprint, jsonify, url_for, session, request
 
 loginit.initLogging()
 logger = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ config.read(configFile)
 secret = config.get("app", "api_secret")
 
 app = Flask(__name__)
+app.logger.setLevel("DEBUG")
 app.secret_key = secret
 
 from rest.restplus import api, apiBlueprint
@@ -33,9 +34,10 @@ app.register_blueprint(apiBlueprint)
 
 app.logger.info("url_map before: %s", app.url_map)
 
-#@app.route('/')
-#def hello_world():
-#    return "Hello World!"
+#@app.before_request
+#def debugOutput():
+#    logger.info("URL root: %s and URL path: %s", request.url_root, request.full_path)
+#    logger.info("Request url %s and args %s", request.url, request.values)
  
 def main():
     logger.info("Starting app server")
