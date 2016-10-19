@@ -3,11 +3,12 @@ import logging
 import json
 from flask import session
 from flask_restplus import Resource, Namespace, fields, reqparse, abort
+from flask_restplus.inputs import boolean
 from db import datastore
 from ..restplus import api
 from ..decorators import require_token, require_admin
 from ..user_cache import userCache
-from helpers import updateUser
+from helpers import updateUser, deleteUser
 
 logger = logging.getLogger("User-routes")
 userApi = Namespace('user', description='User related operations')
@@ -37,11 +38,11 @@ postParser.add_argument('email', type=str, required=True, help='The user email a
 postParser.add_argument('userId', type=str, required=False, help='The user identifier')
 postParser.add_argument('firstname', type=str, required=False, help='User first name')
 postParser.add_argument('lastname', type=str, required=False, help='User last name')
-postParser.add_argument('userRater', type=bool, required=False, help='User has permission to rate whiskies')
-postParser.add_argument('blogWriter', type=bool, required=False, help='User has permission to create blog posts')
-postParser.add_argument('collegeRater', type=bool, required=False, help='User has permission to create advanced ratings')
-postParser.add_argument('whiskeyAdmin', type=bool, required=False, help='The user is an admin')
-postParser.add_argument('dumpCache', type=bool, required=False, help='Flush the user cache')
+postParser.add_argument('userRater', type=boolean, required=False, help='User has permission to rate whiskies')
+postParser.add_argument('blogWriter', type=boolean, required=False, help='User has permission to create blog posts')
+postParser.add_argument('collegeRater', type=boolean, required=False, help='User has permission to create advanced ratings')
+postParser.add_argument('whiskeyAdmin', type=boolean, required=False, help='The user is an admin')
+postParser.add_argument('dumpCache', type=boolean, required=False, default=True, help='Flush the user cache')
 
 getAllParser = userApi.parser()
 getAllParser.add_argument('currentPage', type=int, required=True, default=1, help='Current page of the query, count starts at 1')
@@ -75,6 +76,13 @@ class WBTNUser(Resource):
     def post(self):
         args = postParser.parse_args()
         return updateUser(args)
+    
+    @require_token
+    @require_admin
+    @api.expect(getParser)
+    def delete(self):
+        args = getParser.parse_args()
+        return deleteUser(args)
          
 @api.route('/me')
 class WBTNMe(Resource):

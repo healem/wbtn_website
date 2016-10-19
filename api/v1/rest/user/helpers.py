@@ -14,21 +14,22 @@ def updateUser(args):
     if "email" not in args or args["email"] is None:
         abort(400, reason="EMAIL_REQUIRED")
     try:
-        if "firstName" in args:
+        logger.debug("Args for updating user: %s", args)
+        if args["firstname"] is not None:
             dbm.setFirstName(args["email"], args["firstName"])
-        if "lastName" in args:
+        if args["lastname"] is not None:
             dbm.setLastName(args["email"], args["lastName"])
-        if "userId" in args:
+        if args["userId"] is not None:
             dbm.setSocialId(args["email"], args["userId"])
-        if "userRater" in args:
+        if args["userRater"] is not None:
             dbm.setUserRater(args["email"], args["userRater"])
-        if "blogWriter" in args:
+        if args["blogWriter"] is not None:
             dbm.setBlogWriter(args["email"], args["blogWriter"])
-        if "collegeRater" in args:
+        if args["collegeRater"] is not None:
             dbm.setCollegeRater(args["email"], args["collegeRater"])
-        if "whiskeyAdmin" in args:
+        if args["whiskeyAdmin"] is not None:
             dbm.setAdmin(args["email"], args["whiskeyAdmin"])
-        if "dumpCache" in  args:
+        if args["dumpCache"] is not None:
             cacheItems = userCache.items()
             for item in cacheItems:
                 # cacheItem is a pair: (session_token, user)
@@ -39,5 +40,25 @@ def updateUser(args):
                 
     except (DoesNotExist):
         abort(400, reason="BAD_EMAIL")
+        
+    return 200
+
+def deleteUser(args):
+    if "email" not in args or args["email"] is None:
+        abort(400, reason="EMAIL_REQUIRED")
+        
+    try:
+        dbm.deleteUserByEmail(args["email"])
+    except (DoesNotExist):
+        abort(400, reason="BAD_EMAIL")
+        
+    # Remove user from cache
+    cacheItems = userCache.items()
+    for item in cacheItems:
+        # cacheItem is a pair: (session_token, user)
+        user = item[1]
+        if user.email == args["email"]:
+            userCache.pop(item[0])
+            break
         
     return 200

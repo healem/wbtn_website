@@ -1,7 +1,7 @@
 #!../bin/python
 import logging
 from flask import render_template, request
-from .helpers import getAllUsers
+from .helpers import getAllUsers, updateUser, deleteUser
 from app.admin import admin
 from app.admin.decorators import require_admin, require_token
 
@@ -26,5 +26,27 @@ def get_all_users():
         logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
         itemsPerPage = 100
     return getAllUsers(currentPage, itemsPerPage)
+
+@admin.route('/users/updateUser')
+@require_token
+@require_admin
+def update_user():
+    logger.debug("Dump of args for update_user: %s", request.args)
+    email = request.args.get('email')
+    permissionName = request.args.get('permissionName')
+    permissionValue = request.args.get('permissionValue')
+    logger.debug("Updating permission %s for user %s to %s", permissionName, email, permissionValue)
+
+    return updateUser(email, permissionName, permissionValue)
+
+@admin.route('/users/deleteUser')
+@require_token
+@require_admin
+def delete_user():
+    logger.debug("Dump of args for delete_user: %s", request.args)
+    email = request.args.get('email')
+    logger.debug("Deleting user", email)
+
+    return deleteUser(email)
     
     

@@ -19,3 +19,7 @@ def frontend():
 def minor():
     ''' Minor '''
     return render_template("minor.html")
+
+@admin.route('/denied')
+def denied():
+    return render_template("common/401.html")

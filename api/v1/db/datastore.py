@@ -154,6 +154,7 @@ class DbManager(object):
         
     def setBlogWriter(self, email, isBlogWriter):
         ''' Give the user blog writing permissions '''
+        self.logger.info("Setting user %s blogWriter permissions to %s", email, isBlogWriter)
         self.db.connect()
         with self.db.transaction():
             query = peewee_models.User.update(blogWriter=isBlogWriter,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
@@ -162,6 +163,7 @@ class DbManager(object):
         
     def setCollegeRater(self, email, isCollegeRater):
         ''' Give the user college rating permissions '''
+        self.logger.info("Setting user %s collegeRater permissions to %s", email, isCollegeRater)
         self.db.connect()
         with self.db.transaction():
             query = peewee_models.User.update(collegeRater=isCollegeRater,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.User.email == email)
@@ -244,7 +246,7 @@ class DbManager(object):
     def deleteUserByEmail(self, email):
         '''Delete a user by email address'''
         self.db.connect()
-        self.logger.info("Deleteing user %s", email)
+        self.logger.info("Deleting user %s", email)
         
         try:
             with self.db.transaction():
@@ -260,7 +262,7 @@ class DbManager(object):
     def deleteUserById(self, userId):
         '''Delete a user by userId'''
         self.db.connect()
-        self.logger.info("Deleteing user %s", userId)
+        self.logger.info("Deleting user %s", userId)
         try:
             with self.db.transaction():
                 query = peewee_models.User.delete().where(peewee_models.User.id == userId)

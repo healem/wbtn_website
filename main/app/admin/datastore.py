@@ -77,6 +77,24 @@ def getAllUsersFromBack(currentPage, itemsPerPage):
     #logger.debug("Response to getAllUsers: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
     
     return resp.json()
+
+def updateUserInBack(email, permissionName, permissionValue):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'email': email, permissionName: permissionValue }
+    resp = backSession.post("{}/user".format(DATA_BASE_URL), data=data)
+    
+    return handleResponse(resp)
+
+def deleteUserInBack(email):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'email': email }
+    resp = backSession.delete("{}/user".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to deleteUser: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
         
 def handleResponse(resp, data=None):
     if resp.status_code == 200 or resp.status_code == 201:

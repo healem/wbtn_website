@@ -31,7 +31,7 @@ def require_admin(func):
             return func(*args, **kwargs)
         else:
             flash("Admin permissions required.  Please login as a valid admin.")
-            return redirect("https://whiskey.bythenums.com/main/login")
+            return redirect("https://whiskey.bythenums.com/main/denied")
     
     return check_admin
 
@@ -45,7 +45,7 @@ def require_blog(func):
             return func(*args, **kwargs)
         else:
             flash("Blog writer permissions required.  Please login with a valid blog writer account.")
-            return redirect("https://whiskey.bythenums.com/main/login")
+            return redirect("https://whiskey.bythenums.com/main/denied")
         
     return check_blog
 
@@ -59,7 +59,7 @@ def require_college(func):
             return func(*args, **kwargs)
         else:
             flash("College rating permissions required.  Please login with a valid college rater account.")
-            return redirect("https://whiskey.bythenums.com/main/login")
+            return redirect("https://whiskey.bythenums.com/main/denied")
     
     return check_college
 
