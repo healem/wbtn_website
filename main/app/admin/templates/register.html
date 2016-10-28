@@ -8,15 +8,7 @@
 
     <title>Whiskey By The Numbers | Register</title>
 
-    <link href="/main/app/admin/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/main/app/admin/static/font-awesome/css/font-awesome.css" rel="stylesheet">
-
-    <link href="/main/app/admin/static/css/animate.css" rel="stylesheet">
-    <link href="/main/app/admin/static/css/style.css" rel="stylesheet">
-    
-    <!-- Mainly scripts -->
-    <script src="/main/app/admin/static/js/jquery-2.1.1.js"></script>
-    <script src="/main/app/admin/static/js/bootstrap.min.js"></script>
+    {% include 'common/includes/head/base.html' %}
 
 </head>
 
@@ -82,7 +74,9 @@
     </div>
     
     <!-- scripts -->
-    <script src="/main/app/admin/static/js/plugins/wbtn/wbtn-register.js"></script>
+    {% include 'common/includes/body/base.html' %}
+    {% include 'common/includes/body/register.html' %}
+    
 
 </body>
 

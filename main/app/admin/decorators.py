@@ -2,6 +2,7 @@
 import logging
 from functools import wraps
 from flask import session, redirect, url_for, flash
+from app.constants import LOGIN_URL, DENIED_URL
 from app.admin.session_cache import sessionCache
 from app.admin import admin
 from app.admin.utils import getUserFromSession
@@ -14,7 +15,7 @@ def require_token(func):
     def check_token(*args, **kwargs):
         if getUserFromSession(session) is None:
             flash("No active session - please login")
-            return redirect("https://whiskey.bythenums.com/main/login")
+            return redirect(LOGIN_URL)
         else:
             # Auth successful - send them onward
             return func(*args, **kwargs)
@@ -31,7 +32,7 @@ def require_admin(func):
             return func(*args, **kwargs)
         else:
             flash("Admin permissions required.  Please login as a valid admin.")
-            return redirect("https://whiskey.bythenums.com/main/denied")
+            return redirect(DENIED_URL)
     
     return check_admin
 
@@ -45,7 +46,7 @@ def require_blog(func):
             return func(*args, **kwargs)
         else:
             flash("Blog writer permissions required.  Please login with a valid blog writer account.")
-            return redirect("https://whiskey.bythenums.com/main/denied")
+            return redirect(DENIED_URL)
         
     return check_blog
 
@@ -59,7 +60,7 @@ def require_college(func):
             return func(*args, **kwargs)
         else:
             flash("College rating permissions required.  Please login with a valid college rater account.")
-            return redirect("https://whiskey.bythenums.com/main/denied")
+            return redirect(DENIED_URL)
     
     return check_college
 

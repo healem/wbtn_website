@@ -8,12 +8,8 @@
 
     <title>Whiskey By The Numbers | Users view</title>
 
-    <link href="/main/app/admin/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/main/app/admin/static/font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="/main/app/admin/static/css/animate.css" rel="stylesheet">
-    <link href="/main/app/admin/static/css/plugins/jQueryUI/jquery-ui-1.10.4.custom.min.css" rel="stylesheet">
-    <link href="/main/app/admin/static/css/plugins/jqGrid/ui.jqgrid.css" rel="stylesheet">
-    <link href="/main/app/admin/static/css/style.css" rel="stylesheet">
+    {% include 'common/includes/head/base.html' %}
+    {% include 'common/includes/head/grid.html' %}
 
     <style>
         /* Additional style to fix warning dialog position 
@@ -35,10 +31,10 @@
                     <div class="col-lg-12">
                         <div class="ibox ">
                             <div class="ibox-title">
-                                <h5>jQuery Grid Plugin – jqGrid</h5>
+                                <h5>WBTN Users</h5>
                             </div>
                             <div class="ibox-content">
-                                <h4>Advanced example</h4>
+                                <h4>You can modify a user's permissions or delete a user</h4>
                                 <p>
     
                                 </p>
@@ -60,24 +56,10 @@
     <script>document.getElementById("users_nav").className = "active";</script>
 
     <!-- Mainly scripts -->
-    <script src="/main/app/admin/static/js/jquery-2.1.1.js"></script>
-    <script src="/main/app/admin/static/js/bootstrap.min.js"></script>
-    <script src="/main/app/admin/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
-    <script src="/main/app/admin/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-
-    <!-- Peity -->
-    <script src="/main/app/admin/static/js/plugins/peity/jquery.peity.min.js"></script>
-
-    <!-- jqGrid -->
-    <script src="/main/app/admin/static/js/plugins/jqGrid/i18n/grid.locale-en.js"></script>
-    <script src="/main/app/admin/static/js/plugins/jqGrid/jquery.jqGrid.min.js"></script>
-
-    <!-- Custom and plugin javascript -->
-    <script src="/main/app/admin/static/js/inspinia.js"></script>
-    <script src="/main/app/admin/static/js/plugins/pace/pace.min.js"></script>
-    <script src="/main/app/admin/static/js/plugins/jquery-ui/jquery-ui.min.js"></script>
-    <script src="/main/app/admin/static/js/plugins/wbtn/wbtn-nav.js"></script>
-    <script src="/main/app/admin/static/js/plugins/wbtn/wbtn-users.js"></script>
-
+    {% include 'common/includes/body/base.html' %}
+    {% include 'common/includes/body/nav.html' %}
+    {% include 'common/includes/body/grid.html' %}
+    {% include 'common/includes/body/users.html' %}
+    
 </body>
 </html>
