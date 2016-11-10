@@ -1,41 +1,5 @@
 $(document).ready(function () {
 
-
-    // Examle data for jqGrid
-    var mydata = [
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"},
-        {firstname: "First", lastname: "Last", email: "test@email.com", normal: "True", blogger: "False", college: "False", admin: "True"}
-    ];
-
-
     // Configuration for user table
     $("#table_list").jqGrid({
         url: "https://whiskey.bythenums.com/main/users/getAllUsers",

@@ -9,4 +9,5 @@ admin = Blueprint('admin',
 from app.admin.auth import routes
 from app.admin.landing import routes
 from app.admin.users import routes
+from app.admin.whiskey import routes
 from app.admin.decorators import require_admin, require_token

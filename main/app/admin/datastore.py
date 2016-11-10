@@ -95,6 +95,17 @@ def deleteUserInBack(email):
     logger.debug("Response to deleteUser: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
     
     return handleResponse(resp)
+
+def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    #logger.debug("Backsession for getAllWhiskies: {}".format(backSession))
+    data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage, 'sortField': sortField }
+    resp = backSession.get("{}/allwhiskies".format(DATA_BASE_URL), data=data)
+    
+    #logger.debug("Response to getAllWhiskies: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return resp.json()
         
 def handleResponse(resp, data=None):
     if resp.status_code == 200 or resp.status_code == 201:

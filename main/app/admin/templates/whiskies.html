@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Whiskey By The Numbers | Whiskies view</title>
+
+    {% include 'common/includes/head/base.html' %}
+    {% include 'common/includes/head/grid.html' %}
+
+</head>
+
+<body>
+
+<div id="wrapper">
+
+    {% include 'common/nav.html' %}
+
+    <div id="page-wrapper" class="gray-bg">
+        
+        {% include 'common/header.html' %}
+        
+        <div class="wrapper wrapper-content  animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Whiskies</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <h4>Table of Whiskies</h4>
+                            <p>
+
+                            </p>
+
+                            <div class="jqGrid_wrapper">
+                                <table id="table_list"></table>
+                                <div id="pager_list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% include 'common/footer.html' %}
+        
+    </div>
+</div>
+
+<!-- Set active menu item on nav -->
+<script>document.getElementById("whiskies_nav").className = "active";</script>
+<script>document.getElementById("whiskey_tree").className = "nav nav-second-level";</script>
+
+<!-- Mainly scripts -->
+{% include 'common/includes/body/base.html' %}
+{% include 'common/includes/body/nav.html' %}
+{% include 'common/includes/body/grid.html' %}
+{% include 'common/includes/body/whiskies.html' %}
+
+</body>
+
+</html>

@@ -335,6 +335,37 @@ class DbManager(object):
         
         self.db.close
         return wbtnWhiskey
+    
+    def getAllWhiskies(self, currentPage, itemsPerPage, sortField='name'):
+        ''' Get all whiskies - paged.  First page returned is 1 (not 0)'''
+        self.logger.debug("Requesting page %d from allUsers", currentPage)
+        # Cap itemsPerPage at 100
+        if itemsPerPage > 100:
+            self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
+            itemsPerPage = 100
+            
+        sf = None
+        if   sortField == 'name'  : sf = peewee_models.Whiskey.name
+        elif sortField == 'price' : sf = peewee_models.Whiskey.price
+        elif sortField == 'proof' : sf = peewee_models.Whiskey.proof
+        elif sortField == 'style' : sf = peewee_models.Whiskey.style
+        elif sortField == 'age'   : sf = peewee_models.Whiskey.age
+        else : sf = peewee_models.Whiskey.name
+            
+        whiskies = []
+        self.db.connect()
+        for whiskey in peewee_models.Whiskey.select(peewee_models.Whiskey.name,
+                                              peewee_models.Whiskey.price,
+                                              peewee_models.Whiskey.proof,
+                                              peewee_models.Whiskey.style,
+                                              peewee_models.Whiskey.age,
+                                              peewee_models.Whiskey.icon).order_by(sf).paginate(currentPage, itemsPerPage):
+            whiskies.append(model_to_dict(whiskey))
+        self.db.close
+        
+        self.logger.debug("Returning whiskies: %s", simplejson.dumps(whiskies))
+        
+        return simplejson.dumps(whiskies)
 
     def deleteWhiskeyByName(self, name):
         '''Delete a whiskey by name'''

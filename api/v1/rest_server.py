@@ -24,11 +24,13 @@ from rest.restplus import api, apiBlueprint
 from rest.sample import sampleApi
 from rest.auth.routes import authApi
 from rest.user.routes import userApi
+from rest.whiskey.routes import whiskeyApi
 from rest import decorators
 
 api.add_namespace(sampleApi)
 api.add_namespace(authApi)
 api.add_namespace(userApi)
+api.add_namespace(whiskeyApi)
 
 app.register_blueprint(apiBlueprint)
 
