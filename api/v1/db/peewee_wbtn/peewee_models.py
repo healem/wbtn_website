@@ -46,6 +46,7 @@ class Whiskey(BaseModel):
     style = peewee.CharField(null=True)
     age = peewee.IntegerField(null=True)
     icon = peewee.BlobField(null=True)
+    url = peewee.CharField(null=True)
     createdTime = peewee.DateTimeField()
     lastUpdatedTime = peewee.DateTimeField()
     

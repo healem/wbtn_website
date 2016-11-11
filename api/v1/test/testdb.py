@@ -323,7 +323,8 @@ class DBTest(unittest.TestCase):
         tprice = 35.00
         tproof = 80
         tage = 18
-        ticon = bytearray("waashdkgfualesbsbvlansufbalsug")
+        ticon = "https://whiskey.bythenums.com/api/v1/images/test.jpg"
+        turl = "http://whiskeypics.com/whiskey1.jpg"
         tstyle = "Bourbon"
         freezer = freeze_time("2012-01-14 12:00:01")
         freezer.start()
@@ -341,13 +342,14 @@ class DBTest(unittest.TestCase):
         self.assertEqual(w.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         
         '''Normal case'''
-        self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, style=tstyle)
+        self.dbm.addWhiskey(name=tname2, price=tprice, proof=tproof, age=tage, icon=ticon, url=turl, style=tstyle)
         w1 = self.dbm.getWhiskeyByName(tname2)
         self.assertEqual(w1.name, tname2)
         self.assertEqual(w1.price, tprice)
         self.assertEqual(w1.proof, tproof)
         self.assertEqual(w1.age, tage)
         self.assertEqual(w1.icon, ticon)
+        self.assertEqual(w1.url, turl)
         self.assertEqual(w1.style, tstyle)
         self.assertEqual(w1.createdTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
         self.assertEqual(w1.lastUpdatedTime, datetime.datetime(2012, 1, 14, 12, 0, 1).isoformat())
@@ -362,14 +364,53 @@ class DBTest(unittest.TestCase):
         
         '''Whiskey does not exist'''
         self.assertIsNone(self.dbm.getWhiskeyByName(name="doesnotexist"))
+        
+        '''Set whiskey price'''
+        self.dbm.setPrice(w1.name, 40.00)
+        # refresh view of whiskey
+        w11 = self.dbm.getWhiskeyByName(w1.name)
+        self.assertEqual(w11.price, 40.00)
+        
+        '''Set whiskey proof'''
+        self.dbm.setProof(w1.name, 40)
+        # refresh view of whiskey
+        w12 = self.dbm.getWhiskeyByName(w1.name)
+        self.assertEqual(w12.proof, 40)
+        
+        '''Set whiskey age'''
+        self.dbm.setAge(w1.name, 4)
+        # refresh view of whiskey
+        w13 = self.dbm.getWhiskeyByName(w1.name)
+        self.assertEqual(w13.age, 4)
+        
+        '''Set whiskey icon'''
+        tmpIcon = "https://whiskey.test.com/test.jpg"
+        self.dbm.setIcon(w1.name, tmpIcon)
+        # refresh view of whiskey
+        w14 = self.dbm.getWhiskeyByName(w1.name)
+        self.assertEqual(w14.icon, tmpIcon)
+        
+        '''Set whiskey url'''
+        tmpUrl = "https://whiskey.test.com/test-url.jpg"
+        self.dbm.setUrl(w1.name, tmpUrl)
+        # refresh view of whiskey
+        w15 = self.dbm.getWhiskeyByName(w1.name)
+        self.assertEqual(w15.url, tmpUrl)
+        
+        '''Set whiskey icon'''
+        newName = "Changed Whiskey 1"
+        self.dbm.setName(w1.name, newName)
+        # refresh view of whiskey
+        w16 = self.dbm.getWhiskeyByName(newName)
+        self.assertEqual(w16.name, newName)
 
         '''Delete Whiskey by name'''
         self.dbm.deleteWhiskeyByName(tname2)
         self.assertIsNone(self.dbm.getWhiskeyByName(name=tname2))
 
         '''Delete Whiskey by ID'''
-        self.dbm.deleteWhiskeyById(w1.whiskeyId)
-        self.assertIsNone(self.dbm.getWhiskeyById(w1.whiskeyId))
+        self.dbm.deleteWhiskeyById(w16.whiskeyId)
+        self.assertIsNone(self.dbm.getWhiskeyById(w16.whiskeyId))
             
     def test_addBlogEntry(self):
         tt1 = "Title 1"

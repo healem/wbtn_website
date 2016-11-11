@@ -21,7 +21,7 @@ class User(object):
 
 class Whiskey(object):
 
-    def __init__(self, whiskeyId, name, createdTime, price=None, proof=None, style=None, age=None, icon=None, lastUpdatedTime=None):
+    def __init__(self, whiskeyId, name, createdTime, price=None, proof=None, style=None, age=None, icon=None, url=None, lastUpdatedTime=None):
         self.whiskeyId = whiskeyId
         self.name = name
         self.price = price
@@ -29,6 +29,7 @@ class Whiskey(object):
         self.style = style
         self.age = age
         self.icon = icon
+        self.url = url
         self.createdTime = createdTime.isoformat()
         self.lastUpdatedTime = lastUpdatedTime.isoformat()
 

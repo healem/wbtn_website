@@ -289,7 +289,7 @@ class DbManager(object):
     ##
     #############################################
 
-    def addWhiskey(self, name, price=None, proof=None, style=None, age=None, icon=None):
+    def addWhiskey(self, name, price=None, proof=None, style=None, age=None, icon=None, url=None):
         '''Add a new whiskey to the database.  Must provide unique name'''
         try:
             self.db.connect()
@@ -301,6 +301,7 @@ class DbManager(object):
                     style=style,
                     age=age,
                     icon=icon,
+                    url=url,
                     createdTime=datetime.datetime.now(),
                     lastUpdatedTime=datetime.datetime.now())
             self.db.close
@@ -316,7 +317,7 @@ class DbManager(object):
         self.db.connect()
         try:
             whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.name == name)
-            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, url=whiskey.url, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
         except DoesNotExist:
             pass
         
@@ -329,7 +330,7 @@ class DbManager(object):
         self.db.connect()
         try:
             whiskey = peewee_models.Whiskey.get(peewee_models.Whiskey.id == whiskeyId)
-            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
+            wbtnWhiskey = models.Whiskey(whiskeyId=whiskey.id, name=whiskey.name, price=whiskey.price, proof=whiskey.proof, style=whiskey.style, age=whiskey.age, icon=whiskey.icon, url = whiskey.url, createdTime=whiskey.createdTime, lastUpdatedTime=whiskey.lastUpdatedTime)
         except DoesNotExist:
             pass
         
@@ -359,13 +360,70 @@ class DbManager(object):
                                               peewee_models.Whiskey.proof,
                                               peewee_models.Whiskey.style,
                                               peewee_models.Whiskey.age,
-                                              peewee_models.Whiskey.icon).order_by(sf).paginate(currentPage, itemsPerPage):
+                                              peewee_models.Whiskey.icon,
+                                              peewee_models.Whiskey.url).order_by(sf).paginate(currentPage, itemsPerPage):
             whiskies.append(model_to_dict(whiskey))
         self.db.close
         
         self.logger.debug("Returning whiskies: %s", simplejson.dumps(whiskies))
         
         return simplejson.dumps(whiskies)
+    
+    def setName(self, name, newName):
+        '''Update the whiskey name'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(name=newName,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setPrice(self, name, price):
+        '''Update the whiskey price'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(price=price,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setProof(self, name, proof):
+        '''Update the whiskey proof'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(proof=proof,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setStyle(self, name, style):
+        '''Update the whiskey style'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(style=style,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setAge(self, name, age):
+        '''Update the whiskey age'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(age=age,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setIcon(self, name, icon):
+        '''Update the whiskey icon'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(icon=icon,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
+        
+    def setUrl(self, name, url):
+        '''Update the whiskey icon original url'''
+        self.db.connect()
+        with self.db.transaction():
+            query = peewee_models.Whiskey.update(url=url,lastUpdatedTime=datetime.datetime.now()).where(peewee_models.Whiskey.name == name)
+            query.execute()
+        self.db.close
 
     def deleteWhiskeyByName(self, name):
         '''Delete a whiskey by name'''
