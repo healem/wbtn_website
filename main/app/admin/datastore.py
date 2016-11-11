@@ -15,6 +15,12 @@ class DataResponse(object):
         self.status = status
         self.message = message
         self.data = data
+        
+#################################
+##
+##  Auth
+##
+#################################
 
 def registerToBack(token, email, provider):
     backSess = requests.session()
@@ -41,6 +47,12 @@ def loginToBack(token, provider):
         return validResp
     
     return handleResponse(resp, data=user)
+
+#################################
+##
+##  User
+##
+#################################
 
 def getMe(backSession):
     resp = backSession.get("{}/me".format(DATA_BASE_URL))
@@ -96,6 +108,12 @@ def deleteUserInBack(email):
     
     return handleResponse(resp)
 
+#################################
+##
+##  Whiskey
+##
+#################################
+
 def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None):
     user = getUserFromSession(session)
     backSession = user.backSession
@@ -106,6 +124,28 @@ def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None):
     #logger.debug("Response to getAllWhiskies: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
     
     return resp.json()
+
+def addWhiskeyInBack(name):
+    return 'OK'
+
+def updateWhiskeyInBack(name):
+    return 'OK'
+
+def deleteWhiskeyInBack(name):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'name': name }
+    resp = backSession.delete("{}/whiskey".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to deleteWhiskey: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
+
+#################################
+##
+##  Common
+##
+#################################
         
 def handleResponse(resp, data=None):
     if resp.status_code == 200 or resp.status_code == 201:
