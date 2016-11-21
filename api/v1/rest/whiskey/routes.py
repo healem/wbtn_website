@@ -27,7 +27,7 @@ dbm = datastore.DbManager(testMode=False)
 getAllParser = whiskeyApi.parser()
 getAllParser.add_argument('currentPage', type=int, required=True, default=1, help='Current page of the query, count starts at 1')
 getAllParser.add_argument('itemsPerPage', type=int, required=True, default=20, help='Number of items returned per page, max=100')
-getAllParser.add_argument('sortField', type=str, required=True, default='name', help='The name of the field to sort on: name, price, proof, style, or age')
+getAllParser.add_argument('sortField', type=str, required=False, default='name', help='The name of the field to sort on: name, price, proof, style, or age')
 
 getParser = whiskeyApi.parser()
 getParser.add_argument('name', type=str, required=True, help='The name of the whiskey')

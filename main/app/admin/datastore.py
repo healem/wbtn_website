@@ -121,15 +121,29 @@ def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None):
     data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage, 'sortField': sortField }
     resp = backSession.get("{}/allwhiskies".format(DATA_BASE_URL), data=data)
     
-    #logger.debug("Response to getAllWhiskies: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    logger.debug("Response to getAllWhiskies: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
     
     return resp.json()
 
-def addWhiskeyInBack(name):
-    return 'OK'
+def addWhiskeyInBack(name, price, proof, style, age, url):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'name': name, 'price': price, 'proof': proof, 'style': style, 'age': age, 'url': url }
+    resp = backSession.put("{}/whiskey".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to addWhiskey: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
 
-def updateWhiskeyInBack(name):
-    return 'OK'
+def updateWhiskeyInBack(name, price, proof, style, age, icon, url):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'name': name, 'price': price, 'proof': proof, 'style': style, 'age': age, 'icon': icon, 'url': url }
+    resp = backSession.post("{}/whiskey".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to updateWhiskey: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
 
 def deleteWhiskeyInBack(name):
     user = getUserFromSession(session)

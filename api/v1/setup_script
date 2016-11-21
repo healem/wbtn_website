@@ -16,3 +16,4 @@ pip install flask-restplus
 pip install expiringdict
 pip install coverage
 pip install validate_email
+pip install validators

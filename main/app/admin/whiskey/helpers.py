@@ -10,11 +10,21 @@ def getAllWhiskies(currentPage, itemsPerPage, sortField):
     #logger.debug("In helper: getting %d page with %d items per page", currentPage, itemsPerPage)
     return getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField)
 
-def addWhiskey(name):
-    return 'OK'
+def addWhiskey(name, price, proof, style, age, url):
+    resp = addWhiskeyInBack(name, price, proof, style, age, url)
+    
+    if resp.status == 200:
+        return 'OK'
+    else:
+        return resp.message
 
-def updateWhiskey(name):
-    return 'OK'
+def updateWhiskey(name, price, proof, style, age, icon, url):
+    resp = updateWhiskeyInBack(name, price, proof, style, age, icon, url)
+    
+    if resp.status == 200:
+        return 'OK'
+    else:
+        return resp.message
 
 def deleteWhiskey(name):
     resp = deleteWhiskeyInBack(name)

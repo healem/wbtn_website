@@ -1,9 +1,10 @@
 #!../bin/python
 import logging
-from flask import render_template
+import json
+from flask import render_template, request
 from app.admin import admin
 from app.admin.decorators import require_admin, require_token
-from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey
+from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey, updateWhiskey
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,42 @@ logger = logging.getLogger(__name__)
 def whiskies():
     ''' Front landing page '''
     return render_template("whiskies.html")
+
+@admin.route('/whiskey/whiskey', methods=['GET', 'POST'])
+@require_token
+@require_admin
+def whiskey():
+    ''' Handle all edit commands '''
+    logger.debug("Dump of form for whiskey: %s", request.form)
+    oper = request.form.get('oper', type=str)
+    logger.debug("Requested operation: {}".format(oper))
+    if oper == 'add':
+        name = request.form.get('name', type=str)
+        price = request.form.get('price', type=float)
+        proof = request.form.get('proof', type=float)
+        style = request.form.get('style', type=str)
+        age = request.form.get('age', type=int)
+        url = request.form.get('url', None, type=str)
+        logger.debug("adding whiskey {}".format(name))
+        return addWhiskey(name, price, proof, style, age, url)
+    elif oper == 'edit':
+        name = request.form.get('name', type=str)
+        price = request.form.get('price', type=float)
+        proof = request.form.get('proof', type=float)
+        style = request.form.get('style', type=str)
+        age = request.form.get('age', type=int)
+        icon = request.form.get('icon', None, type=str)
+        url = request.form.get('url', None, type=str)
+        logger.debug("updating whiskey {}".format(name))
+        return updateWhiskey(name, price, proof, style, age, icon, url)
+    elif oper == 'del':
+        # The "name" of the whiskey comes in as "id"
+        name = request.form.get('id', type=str)
+        logger.debug("deleting whiskey {}".format(name))
+        return deleteWhiskey(name)
+    else:
+        logger.warn("Unsupported operation:{}".format(oper))
+        return "Unsupported operation: {}".format(oper)
 
 @admin.route('/whiskey/getAllWhiskies')
 @require_token
@@ -27,36 +64,6 @@ def get_all_whiskies():
         logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
         itemsPerPage = 100
     return getAllWhiskies(currentPage, itemsPerPage, sortField)
-
-@admin.route('/whiskey/addWhiskey')
-@require_token
-@require_admin
-def add_whiskey():
-    logger.debug("Dump of args for add_whiskey: %s", request.args)
-    name = request.args.get('name')
-    logger.debug("Adding whiskey", name)
-
-    return addWhiskey(name)
-
-@admin.route('/whiskey/updateWhiskey')
-@require_token
-@require_admin
-def update_whiskey():
-    logger.debug("Dump of args for update_whiskey: %s", request.args)
-    name = request.args.get('name')
-    logger.debug("updating whiskey", name)
-
-    return updateWhiskey(name)
-
-@admin.route('/whiskey/deleteWhiskey')
-@require_token
-@require_admin
-def delete_whiskey():
-    logger.debug("Dump of args for delete_whiskey: %s", request.args)
-    name = request.args.get('name')
-    logger.debug("Deleting whiskey", name)
-
-    return deleteWhiskey(name)
 
 @admin.route('/whiskey/college_rating/')
 @require_token

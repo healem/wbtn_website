@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     // Configuration for user table
     $("#table_list").jqGrid({
-        url: "https://whiskey.bythenums.com/main/users/getAllWhiskies",
+        url: "https://whiskey.bythenums.com/main/whiskey/getAllWhiskies",
         datatype: "json",
         mtype: 'GET',
         height: 400,
@@ -12,13 +12,13 @@ $(document).ready(function () {
         rowList: [10, 20, 30],
         colNames:['Name','Price', 'Proof', 'Style','Age','Icon', 'Url'],
         colModel:[
-            {name:'name',index:'name', editable: true, width:40, sorttype:"text",search:true, key:true},
-            {name:'price',index:'price', editable: true, width:40, sorttype:"text",search:true},
-            {name:'proof',index:'proof', editable: true, width:50, sorttype:"text",search:true},
+            {name:'name',index:'name', editable: true, width:60, sorttype:"text",search:true, key:true},
+            {name:'price',index:'price', editable: true, width:20, sorttype:"float",search:true},
+            {name:'proof',index:'proof', editable: true, width:20, sorttype:"float",search:true},
             {name:'style',index:'style', editable: true, width:50, sorttype:"text",search:true},
-            {name:'age',index:'age', editable: true, width:50, sorttype:"text",search:true},
-            {name:'icon',index:'icon', editable: true, width:50, sorttype:"text",search:true},
-            {name:'url',index:'url', editable: true, width:50, sorttype:"text",search:true},
+            {name:'age',index:'age', editable: true, width:20, sorttype:"int",search:true},
+            {name:'icon',index:'icon', editable: false, width:80, sorttype:"text",search:false},
+            {name:'url',index:'url', editable: true, width:60, sorttype:"text",search:false},
         ],
         pager: "#pager_list",
         viewrecords: true,
@@ -28,6 +28,7 @@ $(document).ready(function () {
         addtext: 'Add',
         edittext: 'Edit',
         hidegrid: false,
+        editurl: "https://whiskey.bythenums.com/main/whiskey/whiskey",
     });
     
     // delete whiskey
@@ -60,9 +61,10 @@ $(document).ready(function () {
     $("#table_list").jqGrid('navGrid', '#pager_list',
             {edit: true,
              add: true,
-             del: true, delfunc: deleteWhiskey,
+             del: true,
              search: true}
     );
+    // del: true, delfunc: deleteWhiskey,
 
     // Add responsive to jqGrid
     $(window).bind('resize', function () {
