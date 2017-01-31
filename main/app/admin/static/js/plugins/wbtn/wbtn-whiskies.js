@@ -30,32 +30,6 @@ $(document).ready(function () {
         hidegrid: false,
         editurl: "https://whiskey.bythenums.com/main/whiskey/whiskey",
     });
-    
-    // delete whiskey
-    function deleteWhiskey(rowid) {
-        var localData = $(this).jqGrid("getLocalRow", rowid);
-        
-        var baseUrl='https://whiskey.bythenums.com/main'
-    
-        $.ajax({
-            url: baseUrl + '/whiskey/deleteWhiskey',
-            dataType: 'text',
-            data: { name: rowid },
-            success: function(data){
-                if (data == 'OK') {
-                    console.log("Successful delete");
-                }
-                else{
-                    console.log("Failed delete whiskey: ", data);
-                    alert('failed to delete whiskey: ' + data.responseText);
-                }
-            },
-            error: function(data){
-                console.log("Failed delete whiskey: ", data);
-                alert('ERROR: failed to delete whiskey: ' + data.responseText);
-            }
-        });
-    }
 
     // Setup buttons
     $("#table_list").jqGrid('navGrid', '#pager_list',
@@ -64,7 +38,6 @@ $(document).ready(function () {
              del: true,
              search: true}
     );
-    // del: true, delfunc: deleteWhiskey,
 
     // Add responsive to jqGrid
     $(window).bind('resize', function () {

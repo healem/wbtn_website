@@ -30,8 +30,7 @@ def deleteWhiskey(args):
         abort(400, reason="NAME_REQUIRED")
         
     try:
-        icon = dbm.getWhiskeyByName(args["name"]).icon
-        deleteIcon(icon)
+        deleteIcon(dbm.getWhiskeyByName(args["name"]).icon)
         dbm.deleteWhiskeyByName(args["name"])
     except (DoesNotExist):
         abort(400, reason="BAD_NAME")
@@ -58,6 +57,8 @@ def updateWhiskey(args):
                 args["icon"] = downloadImage(args['url'])
             dbm.setUrl(args["name"], args["url"])
         if args["icon"] is not None:
+            ## First, delete the old icon, if it exists
+            deleteIcon(dbm.getWhiskeyByName(args["name"]).icon)
             dbm.setIcon(args["name"], args["icon"])
     except (DoesNotExist):
         abort(400, reason="BAD_EMAIL")

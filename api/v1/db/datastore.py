@@ -642,8 +642,8 @@ class DbManager(object):
     ##
     #############################################
 
-    def addUserRating(self, whiskeyId, userId, rating, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
-        '''Add a new user rating to the database.  This table is bound to the whiskeyId and userId'''
+    def addUserRatingWithCreatedTime(self, whiskeyId, userId, rating, createdTime, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
+        '''Add a new user rating to the database with exsting createdTime.  This table is bound to the whiskeyId and userId'''
         try:
             self.db.connect()
             with self.db.transaction():
@@ -664,7 +664,7 @@ class DbManager(object):
                     citrus=citrus,
                     floral=floral,
                     fruit=fruit,
-                    createdTime=datetime.datetime.now(),
+                    createdTime=createdTime,
                     lastUpdatedTime=datetime.datetime.now())
             self.db.close
 
@@ -672,6 +672,25 @@ class DbManager(object):
             self.logger.error("Failed to add user rating for whiskey %s by user %s, score for this whiskeyId is already present", whiskeyId, userId)
             self.db.close
             raise
+        
+    def addUserRating(self, whiskeyId, userId, rating, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
+        '''Add a new user rating to the database.  This table is bound to the whiskeyId and userId'''
+        createdTime = datetime.datetime.now()
+        self.addUserRatingWithCreatedTime(whiskeyId, userId, rating, createdTime, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
+        
+    def updateUserRating(self, whiskeyId, userId, rating, notes=None, sweet=None, sour=None, heat=None, smooth=None, finish=None, crisp=None, leather=None, wood=None, smoke=None, citrus=None, floral=None, fruit=None):
+        '''Update user rating to the database.  This table is bound to the whiskeyId and userId'''
+        ''' First, get the createdTime of the existing rating '''
+        createdTime = None
+        try:
+            createdTime = self.getUserRatingByWhiskeyId(whiskeyId, userId).createdTime
+            ''' Then, delete the existing rating'''
+            self.deleteUserRatingByWhiskeyId(whiskeyId, userId)
+        except DoesNotExist:
+            createdTime = datetime.datetime.now()
+        
+        '''Add the new rating '''
+        self.addUserRating(self, whiskeyId, userId, rating, createdTime, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
         
     def getUserRatingByWhiskeyId(self, whiskeyId, userId):
         '''Lookup a user ratings by whiskeyId and userId'''
@@ -685,6 +704,59 @@ class DbManager(object):
         
         self.db.close
         return wbtnRating
+    
+    def getAllRatings(self, currentPage, itemsPerPage, sortField='name'):
+        ''' Get all user ratings - paged.  First page returned is 1 (not 0)'''
+        self.logger.debug("Requesting page %d from user ratings", currentPage)
+        # Cap itemsPerPage at 100
+        if itemsPerPage > 100:
+            self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
+            itemsPerPage = 100
+            
+        sf = None
+        if   sortField == 'whiskeyId' : sf = peewee_models.UserRating.whiskeyId
+        elif sortField == 'rating'    : sf = peewee_models.UserRating.rating
+        elif sortField == 'userId'    : sf = peewee_models.UserRating.userId
+        elif sortField == 'sweet'     : sf = peewee_models.UserRating.sweet
+        elif sortField == 'sour'      : sf = peewee_models.UserRating.sour
+        elif sortField == 'heat'      : sf = peewee_models.UserRating.heat
+        elif sortField == 'smooth'    : sf = peewee_models.UserRating.smooth
+        elif sortField == 'finish'    : sf = peewee_models.UserRating.finish
+        elif sortField == 'crisp'     : sf = peewee_models.UserRating.crisp
+        elif sortField == 'leather'   : sf = peewee_models.UserRating.leather
+        elif sortField == 'wood'      : sf = peewee_models.UserRating.wood
+        elif sortField == 'smoke'     : sf = peewee_models.UserRating.smoke
+        elif sortField == 'citrus'    : sf = peewee_models.UserRating.citrus
+        elif sortField == 'floral'    : sf = peewee_models.UserRating.floral
+        elif sortField == 'fruit'     : sf = peewee_models.UserRating.fruit
+        else : sf = peewee_models.UserRating.whiskeyId
+            
+        ratings = []
+        self.db.connect()
+        for rating in peewee_models.UserRating.select(peewee_models.UserRating.whiskeyId_id,
+                                                peewee_models.Whiskey.name,
+                                                peewee_models.UserRating.rating,
+                                                peewee_models.UserRating.userId_id,
+                                                peewee_models.User.email,
+                                                peewee_models.UserRating.sweet,
+                                                peewee_models.UserRating.sour,
+                                                peewee_models.UserRating.heat,
+                                                peewee_models.UserRating.smooth,
+                                                peewee_models.UserRating.finish,
+                                                peewee_models.UserRating.crisp,
+                                                peewee_models.UserRating.leather,
+                                                peewee_models.UserRating.wood,
+                                                peewee_models.UserRating.smoke,
+                                                peewee_models.UserRating.citrus,
+                                                peewee_models.UserRating.floral,
+                                                peewee_models.UserRating.fruit,
+                                                peewee_models.UserRating.notes).join(peewee_models.Whiskey).switch(peewee_models.UserRating).join(peewee_models.User).order_by(sf).paginate(currentPage, itemsPerPage):
+            ratings.append(model_to_dict(rating))
+        self.db.close
+        
+        self.logger.debug("Returning ratings: %s", simplejson.dumps(ratings))
+        
+        return simplejson.dumps(ratings)
 
     def deleteUserRatingByWhiskeyId(self, whiskeyId, userId):
         '''Delete a user rating by whiskeyId and userId'''

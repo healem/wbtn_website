@@ -157,6 +157,53 @@ def deleteWhiskeyInBack(name):
 
 #################################
 ##
+##  Rating
+##
+#################################
+
+def getAllRatingsFromBack(currentPage, itemsPerPage, sortField=None):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    #logger.debug("Backsession for getAllRatings: {}".format(backSession))
+    data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage, 'sortField': sortField }
+    resp = backSession.get("{}/allratings".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to getAllRatings: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return resp.json()
+
+def addRatingInBack(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'whiskeyId': whiskeyId, 'userId': userId, 'rating': rating, 'notes': notes, 'sweet': sweet, 'sour': sour, 'heat': heat, 'smooth': smooth, 'finish': finish, 'crisp': crisp, 'leather': leather, 'wood': wood, 'smoke': smoke, 'citrus': citrus, 'floral': floral, 'fruit': fruit}
+    resp = backSession.put("{}/rating".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to addRating: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
+
+def updateRatingInBack(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'whiskeyId': whiskeyId, 'userId': userId, 'rating': rating, 'notes': notes, 'sweet': sweet, 'sour': sour, 'heat': heat, 'smooth': smooth, 'finish': finish, 'crisp': crisp, 'leather': leather, 'wood': wood, 'smoke': smoke, 'citrus': citrus, 'floral': floral, 'fruit': fruit}
+    resp = backSession.post("{}/rating".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to updateRating: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
+
+def deleteRatingInBack(whiskeyId, userId):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'whiskeyId': whiskeyId, 'userId': userId }
+    resp = backSession.delete("{}/rating".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to deleteRating: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return handleResponse(resp)
+
+#################################
+##
 ##  Common
 ##
 #################################

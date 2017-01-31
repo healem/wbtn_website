@@ -4,7 +4,7 @@ import json
 from flask import render_template, request
 from app.admin import admin
 from app.admin.decorators import require_admin, require_token
-from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey, updateWhiskey
+from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey, updateWhiskey, getAllRatings, deleteRating, addRating, updateRating
 
 logger = logging.getLogger(__name__)
 
@@ -65,16 +65,78 @@ def get_all_whiskies():
         itemsPerPage = 100
     return getAllWhiskies(currentPage, itemsPerPage, sortField)
 
-@admin.route('/whiskey/college_rating/')
+@admin.route('/whiskey/ratings/')
 @require_token
 @require_admin
-def college_rating():
+def ratings():
     ''' Front landing page '''
-    return render_template("college_rating.html")
+    return render_template("ratings.html")
 
-@admin.route('/whiskey/user_rating/')
+@admin.route('/whiskey/rating', methods=['GET', 'POST'])
 @require_token
 @require_admin
-def user_rating():
-    ''' Front landing page '''
-    return render_template("user_rating.html")
+def rating():
+    ''' Handle all edit commands '''
+    logger.debug("Dump of form for rating: %s", request.form)
+    oper = request.form.get('oper', type=str)
+    logger.debug("Requested operation: {}".format(oper))
+    if oper == 'add':
+        whiskeyId = request.form.get('whiskeyId', type=int)
+        userId = request.form.get('userId', type=int)
+        rating = request.form.get('rating', type=float)
+        notes = request.form.get('notes', type=str)
+        sweet = request.form.get('sweet', type=float)
+        sour = request.form.get('sour', type=float)
+        heat = request.form.get('heat', type=float)
+        smooth = request.form.get('smooth', type=float)
+        finish = request.form.get('finish', type=float)
+        crisp = request.form.get('crisp', type=float)
+        leather = request.form.get('leather', type=float)
+        wood = request.form.get('wood', type=float)
+        smoke = request.form.get('smoke', type=float)
+        citrus = request.form.get('citrus', type=float)
+        floral = request.form.get('floral', type=float)
+        fruit = request.form.get('fruit', type=float)
+        logger.debug("adding rating of whiskey {} for user {}".format(whiskeyId, userId))
+        return addRating(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
+    elif oper == 'edit':
+        whiskeyId = request.form.get('whiskeyId', type=int)
+        userId = request.form.get('userId', type=int)
+        rating = request.form.get('rating', type=float)
+        notes = request.form.get('notes', type=str)
+        sweet = request.form.get('sweet', type=float)
+        sour = request.form.get('sour', type=float)
+        heat = request.form.get('heat', type=float)
+        smooth = request.form.get('smooth', type=float)
+        finish = request.form.get('finish', type=float)
+        crisp = request.form.get('crisp', type=float)
+        leather = request.form.get('leather', type=float)
+        wood = request.form.get('wood', type=float)
+        smoke = request.form.get('smoke', type=float)
+        citrus = request.form.get('citrus', type=float)
+        floral = request.form.get('floral', type=float)
+        fruit = request.form.get('fruit', type=float)
+        logger.debug("updating rating of whiskey {} for user {}".format(whiskeyId, userId))
+        return updateRating(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
+    elif oper == 'del':
+        whiskeyId = request.form.get('whiskeyId', type=int)
+        userId = request.form.get('userId', type=int)
+        logger.debug("deleting rating of whiskey {} for user {}".format(whiskeyId, userId))
+        return deleteRating(whiskeyId, userId)
+    else:
+        logger.warn("Unsupported operation:{}".format(oper))
+        return "Unsupported operation: {}".format(oper)
+
+@admin.route('/whiskey/getAllRatings')
+@require_token
+@require_admin
+def get_all_ratings():
+    #logger.debug("Dump of args for get_all_ratings: %s", request.args)
+    currentPage = request.args.get('page', 1, type=int)
+    itemsPerPage = request.args.get('rows', 10, type=int)
+    sortField = request.args.get('sort', None, type=str)
+    #logger.info("Getting ratings page %d with %d items per page", currentPage, itemsPerPage)
+    if itemsPerPage > 100:
+        logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
+        itemsPerPage = 100
+    return getAllRatings(currentPage, itemsPerPage, sortField)
