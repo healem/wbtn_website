@@ -7,7 +7,7 @@ from flask_restplus.inputs import boolean
 from db import datastore
 from ..restplus import api
 from ..decorators import require_token, require_admin
-from helpers import addWhiskey, deleteWhiskey, updateWhiskey
+from helpers import addWhiskey, deleteWhiskey, updateWhiskey, getAllWhiskeyNames
 
 logger = logging.getLogger("whiskey-routes")
 whiskeyApi = Namespace('whiskey', description='Whiskey related operations')
@@ -28,6 +28,7 @@ getAllParser = whiskeyApi.parser()
 getAllParser.add_argument('currentPage', type=int, required=True, default=1, help='Current page of the query, count starts at 1')
 getAllParser.add_argument('itemsPerPage', type=int, required=True, default=20, help='Number of items returned per page, max=100')
 getAllParser.add_argument('sortField', type=str, required=False, default='name', help='The name of the field to sort on: name, price, proof, style, or age')
+getAllParser.add_argument('namesOnly', type=boolean, required=False, default=False, help='Return just a list of Whiskey names')
 
 getParser = whiskeyApi.parser()
 getParser.add_argument('name', type=str, required=True, help='The name of the whiskey')
@@ -57,9 +58,14 @@ class WBTNWhiskies(Resource):
     def get(self):
         #logger.debug("Incoming request for all whiskies")
         args = getAllParser.parse_args()
-        #logger.debug("Getting all whiskies with args: %s", args)
-        allWhiskies = dbm.getAllWhiskies(args['currentPage'], args['itemsPerPage'], args['sortField'])
-        #logger.debug("Returning allWhiskies: %s", allWhiskies)
+        logger.debug("Getting all whiskies with args: %s", args)
+        allWhiskies = None
+        if not args['namesOnly']:
+            allWhiskies = dbm.getAllWhiskies(args['currentPage'], args['itemsPerPage'], args['sortField'])
+            #logger.debug("Returning allWhiskies: %s", allWhiskies)
+        else:
+            allWhiskies = getAllWhiskeyNames(args)
+            
         return allWhiskies
     
 @api.route('/whiskey')

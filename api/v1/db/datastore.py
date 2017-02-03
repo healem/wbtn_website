@@ -339,7 +339,7 @@ class DbManager(object):
     
     def getAllWhiskies(self, currentPage, itemsPerPage, sortField='name'):
         ''' Get all whiskies - paged.  First page returned is 1 (not 0)'''
-        self.logger.debug("Requesting page %d from allUsers", currentPage)
+        self.logger.debug("Requesting page %d from allWhiskies", currentPage)
         # Cap itemsPerPage at 100
         if itemsPerPage > 100:
             self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
@@ -362,6 +362,26 @@ class DbManager(object):
                                               peewee_models.Whiskey.age,
                                               peewee_models.Whiskey.icon,
                                               peewee_models.Whiskey.url).order_by(sf).paginate(currentPage, itemsPerPage):
+            whiskies.append(model_to_dict(whiskey))
+        self.db.close
+        
+        self.logger.debug("Returning whiskies: %s", simplejson.dumps(whiskies))
+        
+        return simplejson.dumps(whiskies)
+    
+    def getAllWhiskeyNames(self, currentPage, itemsPerPage):
+        ''' Get all whiskies - paged.  First page returned is 1 (not 0)'''
+        self.logger.debug("Requesting page %d from allWhiskeyNames", currentPage)
+        # Cap itemsPerPage at 100
+        if itemsPerPage > 100:
+            self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
+            itemsPerPage = 100
+            
+        sf = peewee_models.Whiskey.name
+            
+        whiskies = []
+        self.db.connect()
+        for whiskey in peewee_models.Whiskey.select(sf, peewee_models.Whiskey.id).order_by(sf).paginate(currentPage, itemsPerPage):
             whiskies.append(model_to_dict(whiskey))
         self.db.close
         
@@ -733,10 +753,11 @@ class DbManager(object):
             
         ratings = []
         self.db.connect()
-        for rating in peewee_models.UserRating.select(peewee_models.UserRating.whiskeyId_id,
+        '''    peewee_models.Whiskey.id,       peewee_models.User.id,'''
+        for rating in peewee_models.UserRating.select( peewee_models.Whiskey.id,
                                                 peewee_models.Whiskey.name,
                                                 peewee_models.UserRating.rating,
-                                                peewee_models.UserRating.userId_id,
+                                                peewee_models.User.id,
                                                 peewee_models.User.email,
                                                 peewee_models.UserRating.sweet,
                                                 peewee_models.UserRating.sour,

@@ -1,6 +1,38 @@
 $(document).ready(function () {
 
-    // Configuration for user table
+    // Configuration for select box
+    $(".whiskey_select").select2({
+        placeholder: "Select a whiskey",
+        allowClear: true
+    });
+
+
+    // Configuration for slider
+    var basic_slider = document.getElementById('basic_slider');
+    var basic_slider2 = document.getElementById('basic_slider2');
+
+    noUiSlider.create(basic_slider,{
+        start: 0,
+        connect: 'lower',
+        range: {
+            'min':  0,
+            'max':  5
+        },
+        tooltips: [wNumb({ decimals: 1 })],
+    });
+    
+    noUiSlider.create(basic_slider2,{
+        start: 0,
+        connect: 'lower',
+        range: {
+            'min':  0,
+            'max':  5
+        },
+        tooltips: [wNumb({ decimals: 1 })],
+    });
+
+
+    // Configuration for Ratings table
     $("#table_list").jqGrid({
         url: "https://whiskey.bythenums.com/main/whiskey/getAllRatings",
         datatype: "json",
@@ -10,10 +42,10 @@ $(document).ready(function () {
         shrinkToFit: true,
         rowNum: 20,
         rowList: [10, 20, 30],
-        colNames:[ 'WhiskeyId', 'UserId', 'Rating', 'Sweet', 'Sour', 'Heat', 'Smooth', 'Finish', 'Crisp', 'Leather', 'Wood', 'Smoke', 'Citrus', 'Floral', 'Fruit', 'Notes' ],
+        colNames:[ 'Whiskey', 'User', 'Rating', 'Sweet', 'Sour', 'Heat', 'Smooth', 'Finish', 'Crisp', 'Leather', 'Wood', 'Smoke', 'Citrus', 'Floral', 'Fruit', 'Notes' ],
         colModel:[
-            {name:'whiskeyId',index:'whiskeyId', editable: true, width:10, sorttype:"int",search:true},
-            {name:'userId',index:'userId', editable: true, width:10, sorttype:"int",search:true},
+            {name:'whiskeyId.name',index:'whiskeyId.name', editable: true, width:10, sorttype:"text",search:true},
+            {name:'userId.email',index:'userId.email', editable: true, width:10, sorttype:"text",search:true},
             {name:'rating',index:'rating', editable: true, width:8, sorttype:"float",search:true},
             {name:'sweet',index:'sweet', editable: true, width:8, sorttype:"float",search:false},
             {name:'sour',index:'sour', editable: true, width:8, sorttype:"float",search:false},

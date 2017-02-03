@@ -1,6 +1,7 @@
 #!../../../bin/python
 import logging
 import os.path
+import json
 import urllib
 import validators
 from peewee import IntegrityError, DoesNotExist
@@ -11,6 +12,23 @@ from db import datastore
 logger = logging.getLogger(__name__)
 
 dbm = datastore.DbManager(testMode=False)
+
+def getAllWhiskeyNames(args):
+    
+    namesJson = dbm.getAllWhiskeyNames(args['currentPage'], args['itemsPerPage'])
+    names = json.loads(namesJson)
+    
+    ''' Should return dictionary of id: <int>, name: <name> '''
+    ''' Needs to be converted to id: <int>, text: <name> '''
+    
+    ret = []
+    for name in names:
+        r = {}
+        r["id"] = name["id"]
+        r["text"] = name["name"]
+        ret.append(r)
+    
+    return json.dumps(ret)
 
 def addWhiskey(args):
     if "name" not in args or args["name"] is None:

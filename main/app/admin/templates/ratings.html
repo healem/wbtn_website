@@ -10,6 +10,8 @@
 
     {% include 'common/includes/head/base.html' %}
     {% include 'common/includes/head/grid.html' %}
+    {% include 'common/includes/head/select.html' %}
+    {% include 'common/includes/head/slider.html' %}
 
 </head>
 
@@ -24,6 +26,61 @@
         {% include 'common/header.html' %}
         
         <div class="wrapper wrapper-content  animated fadeInRight">
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Choose a Whiskey to rate</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>
+                                        Selection box
+                                    </p>
+                                    <select class="whiskey_select form-control">
+                                        <option></option>
+                                        <option value="Bahamas">Bahamas</option>
+                                        <option value="Bahrain">Bahrain</option>
+                                        <option value="Bangladesh">Bangladesh</option>
+                                        <option value="Barbados">Barbados</option>
+                                        <option value="Belarus">Belarus</option>
+                                        <option value="Belgium">Belgium</option>
+                                        <option value="Belize">Belize</option>
+                                        <option value="Benin">Benin</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Rate a Whiskey</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <div id="basic_slider"></div>
+                                    <p class="font-bold">Basic example</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div id="basic_slider2"></div>
+                                    <p class="font-bold">Basic example2</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
             <div class="row">
                 <div class="col-lg-12">
                     <div class="ibox ">
@@ -60,6 +117,8 @@
 {% include 'common/includes/body/nav.html' %}
 {% include 'common/includes/body/grid.html' %}
 {% include 'common/includes/body/ratings.html' %}
+{% include 'common/includes/body/select.html' %}
+{% include 'common/includes/body/slider.html' %}
 
 </body>
 

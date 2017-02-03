@@ -6,9 +6,9 @@ from app.admin.session_cache import sessionCache
 
 logger = logging.getLogger(__name__)
 
-def getAllWhiskies(currentPage, itemsPerPage, sortField):
+def getAllWhiskies(currentPage, itemsPerPage, sortField, namesOnly):
     #logger.debug("In helper: getting %d page with %d items per page", currentPage, itemsPerPage)
-    return getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField)
+    return getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField, namesOnly)
 
 def addWhiskey(name, price, proof, style, age, url):
     resp = addWhiskeyInBack(name, price, proof, style, age, url)

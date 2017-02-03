@@ -59,11 +59,13 @@ def get_all_whiskies():
     currentPage = request.args.get('page', 1, type=int)
     itemsPerPage = request.args.get('rows', 10, type=int)
     sortField = request.args.get('sort', None, type=str)
-    #logger.info("Getting whiskey page %d with %d items per page", currentPage, itemsPerPage)
+    namesOnly = request.args.get('namesOnly', False, type=bool)
+    logger.info("Getting whiskey page %d with %d items per page and namesOnly %s", currentPage, itemsPerPage, namesOnly)
     if itemsPerPage > 100:
         logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
         itemsPerPage = 100
-    return getAllWhiskies(currentPage, itemsPerPage, sortField)
+        
+    return getAllWhiskies(currentPage, itemsPerPage, sortField, namesOnly)
 
 @admin.route('/whiskey/ratings/')
 @require_token

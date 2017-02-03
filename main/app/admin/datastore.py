@@ -114,11 +114,12 @@ def deleteUserInBack(email):
 ##
 #################################
 
-def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None):
+def getAllWhiskiesFromBack(currentPage, itemsPerPage, sortField=None, namesOnly=False):
     user = getUserFromSession(session)
     backSession = user.backSession
     #logger.debug("Backsession for getAllWhiskies: {}".format(backSession))
-    data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage, 'sortField': sortField }
+    data = { 'currentPage': currentPage, 'itemsPerPage': itemsPerPage, 'sortField': sortField, 'namesOnly': namesOnly }
+    logger.info("Data for getAllWhiskiesFromBack {}".format(data))
     resp = backSession.get("{}/allwhiskies".format(DATA_BASE_URL), data=data)
     
     logger.debug("Response to getAllWhiskies: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
