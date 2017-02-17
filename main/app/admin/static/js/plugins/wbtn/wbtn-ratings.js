@@ -1,11 +1,20 @@
-$(document).ready(function () {
-
+$(document).ready(function () {    
+    // Get the name of the selected whiskey
+    // $('.whiskey_select :selected').text());
+    
+    // Get the id of the selected whiskey
+    // $('.whiskey_select').val());
+    
+    $(".whiskey_select").on("select2:select", function (evt) { prepareSliders(); });
+    
     // Configuration for select box
-    $(".whiskey_select").select2({
-        placeholder: "Select a whiskey",
-        allowClear: true
+    getWhiskeyList().success( function(data) {
+        $(".whiskey_select").select2({
+            placeholder: "Select a whiskey",
+            allowClear: true,
+            data: data
+        });
     });
-
 
     // Configuration for slider
     var basic_slider = document.getElementById('basic_slider');
@@ -90,4 +99,34 @@ $(document).ready(function () {
         var width = $('.jqGrid_wrapper').width();
         $('#table_list').setGridWidth(width);
     });
+    
+    function getWhiskeyList() {
+        var baseUrl='https://whiskey.bythenums.com/main/whiskey/getAllWhiskies'
+        
+        return $.ajax({
+            url: baseUrl,
+            dataType: 'json',
+            data: { currentPage: 1,
+                    itemsPerPage: 500,
+                    sortField: 'name',
+                    namesOnly: true }
+        });
+    }
+    
+    function prepareSliders() {
+        getUserRating().success( function(data) {
+        
+        });
+    }
+    
+    function getUserRating(whiskeyId) {
+        var baseUrl='https://whiskey.bythenums.com/main/rating'
+        
+        return $.ajax({
+            url: baseUrl,
+            dataType: 'json',
+            data: { oper: 'get',
+                    whiskeyId: whiskeyId }
+        });
+    }
 });

@@ -7,10 +7,18 @@ from peewee import IntegrityError, DoesNotExist
 from flask import session
 from flask_restplus import abort
 from db import datastore
+from rest.auth.helpers import getUserFromSession
 
 logger = logging.getLogger(__name__)
 
 dbm = datastore.DbManager(testMode=False)
+
+def getRating(args):
+    if args['userId'] == 0:
+        user = getUserFromSession(session)
+        args['userId'] = getattr(user,userId)
+    
+    return json.dumps(dbm.getUserRatingByWhiskeyId(args['whiskeyId'], args['userId']).__dict__)
 
 def addRating(args):
     if "whiskeyId" not in args or args["whiskeyId"] is None:

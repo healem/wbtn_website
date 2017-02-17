@@ -372,16 +372,16 @@ class DbManager(object):
     def getAllWhiskeyNames(self, currentPage, itemsPerPage):
         ''' Get all whiskies - paged.  First page returned is 1 (not 0)'''
         self.logger.debug("Requesting page %d from allWhiskeyNames", currentPage)
-        # Cap itemsPerPage at 100
-        if itemsPerPage > 100:
-            self.logger.warn("Requested %d itemsPerPage exceeded max of 100", itemsPerPage)
-            itemsPerPage = 100
+        # Cap itemsPerPage at 500
+        if itemsPerPage > 500:
+            self.logger.warn("Requested %d itemsPerPage exceeded max of 500", itemsPerPage)
+            itemsPerPage = 500
             
         sf = peewee_models.Whiskey.name
             
         whiskies = []
         self.db.connect()
-        for whiskey in peewee_models.Whiskey.select(sf, peewee_models.Whiskey.id).order_by(sf).paginate(currentPage, itemsPerPage):
+        for whiskey in peewee_models.Whiskey.select(peewee_models.Whiskey.id, sf).order_by(sf).paginate(currentPage, itemsPerPage):
             whiskies.append(model_to_dict(whiskey))
         self.db.close
         

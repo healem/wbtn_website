@@ -4,7 +4,7 @@ import json
 from flask import render_template, request
 from app.admin import admin
 from app.admin.decorators import require_admin, require_token
-from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey, updateWhiskey, getAllRatings, deleteRating, addRating, updateRating
+from .helpers import getAllWhiskies, deleteWhiskey, addWhiskey, updateWhiskey, getAllRatings, deleteRating, addRating, updateRating, getRating
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +61,9 @@ def get_all_whiskies():
     sortField = request.args.get('sort', None, type=str)
     namesOnly = request.args.get('namesOnly', False, type=bool)
     logger.info("Getting whiskey page %d with %d items per page and namesOnly %s", currentPage, itemsPerPage, namesOnly)
-    if itemsPerPage > 100:
-        logger.warn("%d Items per page exceed max of 100, forcing to 100", itemsPerPage)
-        itemsPerPage = 100
+    if itemsPerPage > 500:
+        logger.warn("%d Items per page exceed max of 500, forcing to 500", itemsPerPage)
+        itemsPerPage = 500
         
     return getAllWhiskies(currentPage, itemsPerPage, sortField, namesOnly)
 
@@ -82,7 +82,12 @@ def rating():
     logger.debug("Dump of form for rating: %s", request.form)
     oper = request.form.get('oper', type=str)
     logger.debug("Requested operation: {}".format(oper))
-    if oper == 'add':
+    if oper == 'get':
+        whiskeyId = request.form.get('whiskeyId', type=int)
+        userId = request.form.get('userId', 0, type=int)
+        logger.debug("getting rating of whiskey {} for user {}".format(whiskeyId, userId))
+        return getRating(whiskeyId, userId)
+    elif oper == 'add':
         whiskeyId = request.form.get('whiskeyId', type=int)
         userId = request.form.get('userId', type=int)
         rating = request.form.get('rating', type=float)

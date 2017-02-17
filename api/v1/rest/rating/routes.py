@@ -78,7 +78,7 @@ class WBTNRating(Resource):
     @api.expect(getParser)
     def get(self):
         args = getParser.parse_args()
-        return json.dumps(getRating(args['whiskeyId'], args['userId']).__dict__)
+        return getRating(args)
     
     @require_token
     @require_admin
@@ -100,6 +100,3 @@ class WBTNRating(Resource):
     def delete(self):
         args = getParser.parse_args()
         return deleteRating(args)
-
-def getRating(whiskeyId, userId):
-    return dbm.getUserRatingByWhiskeyId(whiskeyId, userId)

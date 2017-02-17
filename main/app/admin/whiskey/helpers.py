@@ -1,7 +1,7 @@
 #!../bin/python
 import logging
 from app.admin import admin
-from app.admin.datastore import DataResponse, getAllWhiskiesFromBack, updateWhiskeyInBack, deleteWhiskeyInBack, addWhiskeyInBack, getAllRatingsFromBack, updateRatingInBack, deleteRatingInBack, addRatingInBack
+from app.admin.datastore import DataResponse, getAllWhiskiesFromBack, updateWhiskeyInBack, deleteWhiskeyInBack, addWhiskeyInBack, getAllRatingsFromBack, updateRatingInBack, deleteRatingInBack, addRatingInBack, getRatingInBack
 from app.admin.session_cache import sessionCache
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,9 @@ def deleteWhiskey(name):
 def getAllRatings(currentPage, itemsPerPage, sortField):
     #logger.debug("In helper: getting %d page with %d items per page", currentPage, itemsPerPage)
     return getAllRatingsFromBack(currentPage, itemsPerPage, sortField)
+
+def getRating(whiskeyId, userId):
+    return getRatingInBack(whiskeyId, userId)
 
 def addRating(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit):
     resp = addRatingInBack(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)

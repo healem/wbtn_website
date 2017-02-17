@@ -173,6 +173,16 @@ def getAllRatingsFromBack(currentPage, itemsPerPage, sortField=None):
     
     return resp.json()
 
+def getRatingInBack(whiskeyId, userId):
+    user = getUserFromSession(session)
+    backSession = user.backSession
+    data = { 'whiskeyId': whiskeyId, 'userId': userId }
+    resp = backSession.get("{}/rating".format(DATA_BASE_URL), data=data)
+    
+    logger.debug("Response to getRating: %s with data, headers: %s, original request url: %s", resp.content, resp.headers, resp.request.url)
+    
+    return resp.json()
+
 def addRatingInBack(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit):
     user = getUserFromSession(session)
     backSession = user.backSession
