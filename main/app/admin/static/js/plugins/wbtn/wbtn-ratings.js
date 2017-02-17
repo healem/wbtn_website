@@ -14,9 +14,11 @@ $(document).ready(function () {
     noUiSlider.create(basic_slider,{
         start: 0,
         connect: 'lower',
+        orientation: 'vertical',
+        direction: 'rtl',
         range: {
-            'min':  0,
-            'max':  5
+            'max':  5,
+            'min':  0
         },
         tooltips: [wNumb({ decimals: 1 })],
     });
@@ -24,6 +26,8 @@ $(document).ready(function () {
     noUiSlider.create(basic_slider2,{
         start: 0,
         connect: 'lower',
+        orientation: 'vertical',
+        direction: 'rtl',
         range: {
             'min':  0,
             'max':  5
