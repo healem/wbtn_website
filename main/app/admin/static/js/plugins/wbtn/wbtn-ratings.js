@@ -5,7 +5,9 @@ $(document).ready(function () {
     // Get the id of the selected whiskey
     // $('.whiskey_select').val());
     
+    // Handle events
     $(".whiskey_select").on("select2:select", function (evt) { prepareSliders(); });
+    document.getElementById("submitRating").onclick = submitRatings;
     
     // Configuration for select box
     getWhiskeyList().success( function(data) {
@@ -16,33 +18,12 @@ $(document).ready(function () {
         });
     });
 
-    // Configuration for slider
-    var basic_slider = document.getElementById('basic_slider');
-    var basic_slider2 = document.getElementById('basic_slider2');
+    // Configuration for sliders
+    var overall = document.getElementById('overall');
+    var flavorProfiles = ['sweet', 'sour', 'heat', 'smooth', 'finish', 'crisp', 'leather', 'wood', 'smoke', 'citrus', 'floral', 'fruit']
 
-    noUiSlider.create(basic_slider,{
-        start: 0,
-        connect: 'lower',
-        orientation: 'vertical',
-        direction: 'rtl',
-        range: {
-            'max':  5,
-            'min':  0
-        },
-        tooltips: [wNumb({ decimals: 1 })],
-    });
-    
-    noUiSlider.create(basic_slider2,{
-        start: 0,
-        connect: 'lower',
-        orientation: 'vertical',
-        direction: 'rtl',
-        range: {
-            'min':  0,
-            'max':  5
-        },
-        tooltips: [wNumb({ decimals: 1 })],
-    });
+    createHorizontalSlider("overall")
+    flavorProfiles.forEach(createVerticalSlider)
 
 
     // Configuration for Ratings table
@@ -57,8 +38,8 @@ $(document).ready(function () {
         rowList: [10, 20, 30],
         colNames:[ 'Whiskey', 'User', 'Rating', 'Sweet', 'Sour', 'Heat', 'Smooth', 'Finish', 'Crisp', 'Leather', 'Wood', 'Smoke', 'Citrus', 'Floral', 'Fruit', 'Notes' ],
         colModel:[
-            {name:'whiskeyId.name',index:'whiskeyId.name', editable: true, width:10, sorttype:"text",search:true},
-            {name:'userId.email',index:'userId.email', editable: true, width:10, sorttype:"text",search:true},
+            {name:'whiskeyId.name',index:'whiskeyId.name', editable: true, width:50, sorttype:"text",search:true},
+            {name:'userId.email',index:'userId.email', editable: true, width:20, sorttype:"text",search:true},
             {name:'rating',index:'rating', editable: true, width:8, sorttype:"float",search:true},
             {name:'sweet',index:'sweet', editable: true, width:8, sorttype:"float",search:false},
             {name:'sour',index:'sour', editable: true, width:8, sorttype:"float",search:false},
@@ -106,27 +87,73 @@ $(document).ready(function () {
         return $.ajax({
             url: baseUrl,
             dataType: 'json',
-            data: { currentPage: 1,
-                    itemsPerPage: 500,
-                    sortField: 'name',
+            data: { page: 1,
+                    rows: 500,
+                    sort: 'name',
                     namesOnly: true }
         });
     }
     
     function prepareSliders() {
-        getUserRating().success( function(data) {
-        
+        getUserRating($('.whiskey_select').val()).success( function(data) {
+            if (data != null) {
+                updateSliderValue("overall", data["rating"]);
+                flavorProfiles.forEach(function (item) {updateSliderValue(item,data[item])});
+                document.getElementById("notes").value = data["notes"];
+            }
+            else{
+                alert("You have not yet rated this whiskey.")
+            }
         });
     }
     
     function getUserRating(whiskeyId) {
-        var baseUrl='https://whiskey.bythenums.com/main/rating'
+        var baseUrl='https://whiskey.bythenums.com/main/whiskey/rating'
         
         return $.ajax({
             url: baseUrl,
             dataType: 'json',
-            data: { oper: 'get',
-                    whiskeyId: whiskeyId }
+            data: { whiskeyId: whiskeyId }
         });
+    }
+    
+    function createVerticalSlider(flavorProfile) {
+        noUiSlider.create(document.getElementById(flavorProfile),{
+            start: 1,
+            connect: 'lower',
+            orientation: 'vertical',
+            direction: 'rtl',
+            range: {
+                'max':  5,
+                'min':  0
+            },
+            tooltips: [wNumb({ decimals: 1 })],
+        });
+    }
+    
+    function createHorizontalSlider(flavorProfile) {
+        noUiSlider.create(document.getElementById(flavorProfile),{
+            start: 1,
+            connect: 'lower',
+            orientation: 'horizontal',
+            range: {
+                'max':  5,
+                'min':  0
+            },
+            tooltips: [wNumb({ decimals: 1 })],
+        });
+    }
+    
+    function updateSliderValue(flavorProfile, value) {
+        console.log("Updating slider " + flavorProfile + " to " + value)
+        document.getElementById(flavorProfile).noUiSlider.set(value);
+    }
+    
+    function updateUserRating() {
+        //code
+    }
+    
+    function submitRatings() {
+        alert("Pushed button")
     }
 });

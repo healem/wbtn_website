@@ -714,12 +714,14 @@ class DbManager(object):
         
     def getUserRatingByWhiskeyId(self, whiskeyId, userId):
         '''Lookup a user ratings by whiskeyId and userId'''
+        self.logger.debug("Looking up rating of %d for userId %d", whiskeyId, userId)
         wbtnRating = None
         self.db.connect()
         try:
             r = peewee_models.UserRating.get(peewee_models.UserRating.whiskeyId == whiskeyId, peewee_models.UserRating.userId == userId)
-            wbtnRating = models.UserRating(whiskeyId=r.whiskeyId, userId=r.userId, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
+            wbtnRating = models.UserRating(whiskeyId=r.whiskeyId_id, userId=r.userId_id, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
         except DoesNotExist:
+            self.logger.warn("Did not find rating for %d for userId %d", whiskeyId, userId)
             pass
         
         self.db.close

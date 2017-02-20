@@ -7,7 +7,7 @@ from flask_restplus.inputs import boolean
 from db import datastore
 from ..restplus import api
 from ..decorators import require_token, require_admin
-from helpers import addRating, deleteRating, updateRating
+from helpers import addRating, deleteRating, updateRating, getRating
 
 logger = logging.getLogger("rating-routes")
 ratingApi = Namespace('rating', description='Rating related operations')
