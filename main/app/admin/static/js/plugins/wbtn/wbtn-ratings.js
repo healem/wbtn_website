@@ -1,9 +1,9 @@
 $(document).ready(function () {    
     // Get the name of the selected whiskey
-    // $('.whiskey_select :selected').text());
+    // $('.whiskey_select :selected').text();
     
     // Get the id of the selected whiskey
-    // $('.whiskey_select').val());
+    // $('.whiskey_select').val();
     
     // Handle events
     $(".whiskey_select").on("select2:select", function (evt) { prepareSliders(); });
@@ -102,6 +102,9 @@ $(document).ready(function () {
                 document.getElementById("notes").value = data["notes"];
             }
             else{
+                updateSliderValue("overall", 1);
+                flavorProfiles.forEach(function (item) {updateSliderValue(item,1)});
+                document.getElementById("notes").value = ""
                 alert("You have not yet rated this whiskey.")
             }
         });
@@ -149,11 +152,32 @@ $(document).ready(function () {
         document.getElementById(flavorProfile).noUiSlider.set(value);
     }
     
-    function updateUserRating() {
-        //code
+    function updateUserRating(data) {
+        var baseUrl='https://whiskey.bythenums.com/main/whiskey/rating'
+        
+        data["oper"] = "edit";
+        
+        return $.ajax({
+            url: baseUrl,
+            dataType: 'text',
+            type: 'POST',
+            data: data
+        });
     }
     
     function submitRatings() {
-        alert("Pushed button")
+        var data = {};
+        
+        data["whiskeyId"]=$('.whiskey_select').val();
+        data["rating"]=document.getElementById("overall").noUiSlider.get();
+        data["notes"]=document.getElementById("notes").value
+        flavorProfiles.forEach(function (item) {data[item] = document.getElementById(item).noUiSlider.get()});
+        
+        updateUserRating(data).success( function(data) {
+            if (data == 'OK') {
+                console.log("Refreshing ratings grid");
+                $('#table_list').trigger( 'reloadGrid' );
+            }
+        });
     }
 });

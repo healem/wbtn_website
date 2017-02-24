@@ -710,7 +710,7 @@ class DbManager(object):
             createdTime = datetime.datetime.now()
         
         '''Add the new rating '''
-        self.addUserRating(self, whiskeyId, userId, rating, createdTime, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
+        self.addUserRatingWithCreatedTime(whiskeyId, userId, rating, createdTime, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
         
     def getUserRatingByWhiskeyId(self, whiskeyId, userId):
         '''Lookup a user ratings by whiskeyId and userId'''
@@ -722,7 +722,7 @@ class DbManager(object):
             wbtnRating = models.UserRating(whiskeyId=r.whiskeyId_id, userId=r.userId_id, rating=r.rating, createdTime=r.createdTime, lastUpdatedTime=r.lastUpdatedTime, notes=r.notes, sweet=r.sweet, sour=r.sour, heat=r.heat, smooth=r.smooth, finish=r.finish, crisp=r.crisp, leather=r.leather, wood=r.wood, smoke=r.smoke, citrus=r.citrus, floral=r.floral, fruit=r.fruit)
         except DoesNotExist:
             self.logger.warn("Did not find rating for %d for userId %d", whiskeyId, userId)
-            pass
+            raise DoesNotExist()
         
         self.db.close
         return wbtnRating

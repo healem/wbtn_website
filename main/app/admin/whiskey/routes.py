@@ -91,7 +91,7 @@ def rating():
         logger.debug("Requested operation: {}".format(oper))
         if oper == 'add':
             whiskeyId = request.form.get('whiskeyId', type=int)
-            userId = request.form.get('userId', type=int)
+            userId = request.form.get('userId', 0, type=int)
             rating = request.form.get('rating', type=float)
             notes = request.form.get('notes', type=str)
             sweet = request.form.get('sweet', type=float)
@@ -110,7 +110,7 @@ def rating():
             return addRating(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
         elif oper == 'edit':
             whiskeyId = request.form.get('whiskeyId', type=int)
-            userId = request.form.get('userId', type=int)
+            userId = request.form.get('userId', 0, type=int)
             rating = request.form.get('rating', type=float)
             notes = request.form.get('notes', type=str)
             sweet = request.form.get('sweet', type=float)
@@ -129,7 +129,7 @@ def rating():
             return updateRating(whiskeyId, userId, rating, notes, sweet, sour, heat, smooth, finish, crisp, leather, wood, smoke, citrus, floral, fruit)
         elif oper == 'del':
             whiskeyId = request.form.get('whiskeyId', type=int)
-            userId = request.form.get('userId', type=int)
+            userId = request.form.get('userId', 0, type=int)
             logger.debug("deleting rating of whiskey {} for user {}".format(whiskeyId, userId))
             return deleteRating(whiskeyId, userId)
         else:

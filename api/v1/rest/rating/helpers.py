@@ -20,7 +20,12 @@ def getRating(args):
         logger.debug("User from session: {}".format(user))
         args['userId'] = user['userId']
     
-    userRatingRaw = dbm.getUserRatingByWhiskeyId(args['whiskeyId'], args['userId'])
+    userRatingRaw = None
+    try:
+        userRatingRaw = dbm.getUserRatingByWhiskeyId(args['whiskeyId'], args['userId'])
+    except DoesNotExist:
+        pass
+    
     if userRatingRaw != None:
         userRatingRaw = userRatingRaw.__dict__
         
@@ -34,6 +39,11 @@ def addRating(args):
         
     if "userId" not in args or args["userId"] is None:
         abort(400, reason="USER_ID_REQUIRED")
+        
+    if args['userId'] == 0:
+        user = getUserFromSession(session).__dict__
+        logger.debug("User from session: {}".format(user))
+        args['userId'] = user['userId']
         
     try:
         dbm.addUserRating(whiskeyId=args['whiskeyId'], userId=args['userId'], rating=args['rating'], notes=args['notes'], sweet=args['sweet'], sour=args['sour'], heat=args['heat'], smooth=args['smooth'], finish=args['finish'], crisp=args['crisp'], leather=args['leather'], wood=args['wood'], smoke=args['smoke'], citrus=args['citrus'], floral=args['floral'], fruit=args['fruit'])   
@@ -49,6 +59,11 @@ def deleteRating(args):
     if "userId" not in args or args["userId"] is None:
         abort(400, reason="USER_ID_REQUIRED")
         
+    if args['userId'] == 0:
+        user = getUserFromSession(session).__dict__
+        logger.debug("User from session: {}".format(user))
+        args['userId'] = user['userId']
+        
     try:
         dbm.deleteUserRatingByWhiskeyId(whiskeyId=args['whiskeyId'], userId=args['userId'])
     except (DoesNotExist):
@@ -62,6 +77,11 @@ def updateRating(args):
         
     if "userId" not in args or args["userId"] is None:
         abort(400, reason="USER_ID_REQUIRED")
+        
+    if args['userId'] == 0:
+        user = getUserFromSession(session).__dict__
+        logger.debug("User from session: {}".format(user))
+        args['userId'] = user['userId']
         
     try:
         dbm.updateUserRating(whiskeyId=args['whiskeyId'], userId=args['userId'], rating=args['rating'], notes=args['notes'], sweet=args['sweet'], sour=args['sour'], heat=args['heat'], smooth=args['smooth'], finish=args['finish'], crisp=args['crisp'], leather=args['leather'], wood=args['wood'], smoke=args['smoke'], citrus=args['citrus'], floral=args['floral'], fruit=args['fruit'])   
